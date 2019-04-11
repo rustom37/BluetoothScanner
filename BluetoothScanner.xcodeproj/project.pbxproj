@@ -13,6 +13,9 @@
 		AA752E96225E1E5800F201EC /* BluetoothScanner.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = AA752E94225E1E5800F201EC /* BluetoothScanner.xcdatamodeld */; };
 		AA752E98225E1E5800F201EC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AA752E97225E1E5800F201EC /* Assets.xcassets */; };
 		AA752E9B225E1E5800F201EC /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA752E99225E1E5800F201EC /* LaunchScreen.storyboard */; };
+		AA752EA3225E1EBC00F201EC /* BLScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA752EA2225E1EBC00F201EC /* BLScanner.swift */; };
+		AA752EA7225E204700F201EC /* BLObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA752EA6225E204700F201EC /* BLObject.swift */; };
+		AA752EA9225E243F00F201EC /* BLScannerDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA752EA8225E243F00F201EC /* BLScannerDelegate.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -24,6 +27,9 @@
 		AA752E97225E1E5800F201EC /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		AA752E9A225E1E5800F201EC /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		AA752E9C225E1E5800F201EC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		AA752EA2225E1EBC00F201EC /* BLScanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BLScanner.swift; sourceTree = "<group>"; };
+		AA752EA6225E204700F201EC /* BLObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BLObject.swift; sourceTree = "<group>"; };
+		AA752EA8225E243F00F201EC /* BLScannerDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BLScannerDelegate.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -63,6 +69,9 @@
 				AA752E99225E1E5800F201EC /* LaunchScreen.storyboard */,
 				AA752E9C225E1E5800F201EC /* Info.plist */,
 				AA752E94225E1E5800F201EC /* BluetoothScanner.xcdatamodeld */,
+				AA752EA2225E1EBC00F201EC /* BLScanner.swift */,
+				AA752EA6225E204700F201EC /* BLObject.swift */,
+				AA752EA8225E243F00F201EC /* BLScannerDelegate.swift */,
 			);
 			path = BluetoothScanner;
 			sourceTree = "<group>";
@@ -140,6 +149,9 @@
 			files = (
 				AA752E90225E1E5800F201EC /* ViewController.swift in Sources */,
 				AA752E8E225E1E5800F201EC /* AppDelegate.swift in Sources */,
+				AA752EA7225E204700F201EC /* BLObject.swift in Sources */,
+				AA752EA9225E243F00F201EC /* BLScannerDelegate.swift in Sources */,
+				AA752EA3225E1EBC00F201EC /* BLScanner.swift in Sources */,
 				AA752E96225E1E5800F201EC /* BluetoothScanner.xcdatamodeld in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
