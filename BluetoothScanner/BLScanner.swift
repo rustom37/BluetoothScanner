@@ -12,9 +12,11 @@ import CoreBluetooth
 
 class BLScanner: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
     
-    var centralManager : CBCentralManager?
-    var peripherals: [BLObject] = []
-    
+    private var centralManager : CBCentralManager?
+    private var peripherals: [BLObject] = []
+    var delegate : BLScannerDelegate?
+
+        
     override init() {
         super.init()
         centralManager = CBCentralManager(delegate: self, queue: nil)
@@ -39,12 +41,11 @@ class BLScanner: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
         }
     }
     
-    func startScan(tableView: UITableView) {
+    func startScan() {
         print("Now Scanning...")
         centralManager?.scanForPeripherals(withServices: nil, options: [CBCentralManagerScanOptionAllowDuplicatesKey: false])
         DispatchQueue.main.asyncAfter(deadline: .now() + 5, execute: {
             self.stopScan()
-            tableView.reloadData()
         })
     }
     
@@ -69,5 +70,17 @@ class BLScanner: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
     
     func getVisibleObjects() -> [BLObject] {
         return peripherals
+    }
+    
+    func displayObjects() {
+        DispatchQueue.global(qos: .userInitiated).async {
+            DispatchQueue.main.async {
+                self.updateObjects()
+            }
+        }
+    }
+    
+    func updateObjects() {
+        delegate?.update(self)
     }
 }

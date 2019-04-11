@@ -9,5 +9,7 @@
 import Foundation
 
 protocol BLScannerDelegate {
-    func didChange()
+    func didFindObject(object: BLObject) -> Bool
+    func didDisappear(object: BLObject) -> Bool
+    func update(_ sender: BLScanner)
 }
