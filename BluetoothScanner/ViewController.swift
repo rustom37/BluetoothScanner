@@ -23,9 +23,9 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "tableViewCell")
         
         scanner.delegate = self
-        scanner.displayObjects()
-        
         configureTableView()
+        scanner.displayObjects()
+    
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -63,7 +63,6 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     }
     
     func update(_ sender: BLScanner) {
-        self.configureTableView()
         self.tableView.reloadData()
     }
 }

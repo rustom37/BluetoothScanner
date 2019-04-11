@@ -65,6 +65,7 @@ class BLScanner: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
         
         if(!peripherals.contains(BLObject(displayName: peripheral.name ?? "no name", RSSI: "\(RSSI)", peripheral: peripheral))) {
             peripherals.append(BLObject(displayName: peripheral.name ?? "No Name", RSSI: "\(RSSI)", peripheral: peripheral))
+            updateObjects()
         }
     }
     
