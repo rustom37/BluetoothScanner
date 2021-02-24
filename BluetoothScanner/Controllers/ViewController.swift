@@ -41,6 +41,19 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         return cell
     }
     
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        if let  peripheral = scanner.getVisibleObjects()[indexPath.row].peripheral {
+            scanner.centralManager?.connect(peripheral, options: nil)
+            self.title = "Connected to \(scanner.getVisibleObjects()[indexPath.row].displayName ?? "Uknown Device")"
+            self.view.backgroundColor = UIColor.green
+            tableView.deselectRow(at: indexPath, animated: true)
+
+            let vc: BeaconViewController = self.storyboard?.instantiateViewController(withIdentifier: "BeaconViewController") as! BeaconViewController
+            vc.servicesArray = peripheral.services
+            self.navigationController?.pushViewController(vc, animated: true)
+        }
+    }
+    
     func configureTableView() {
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 150.0
@@ -64,6 +77,17 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     
     func update(_ sender: BLScanner) {
         self.tableView.reloadData()
+    }
+    
+    func didFindInfo(_ value: String) {
+        self.showAlert("BL manufacturer info ", body: value)
+    }
+    
+    func showAlert (_ title: String, body: String) {
+        let alert = UIAlertController(title: title, message: body, preferredStyle: .alert)
+        let ok = UIAlertAction(title: "OK", style: .cancel, handler: nil)
+        alert.addAction(ok)
+        self.present(alert, animated: true, completion: nil)
     }
 }
 

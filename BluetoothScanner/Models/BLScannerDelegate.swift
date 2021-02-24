@@ -12,4 +12,6 @@ protocol BLScannerDelegate {
     func didFindObject(object: BLObject) -> Bool
     func didDisappear(object: BLObject) -> Bool
     func update(_ sender: BLScanner)
+    
+    func didFindInfo(_ value: String)
 }
