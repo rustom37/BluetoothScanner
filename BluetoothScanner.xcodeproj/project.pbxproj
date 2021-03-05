@@ -7,11 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		AA22808425E6AA5D0073CEBF /* ServicesCustomCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = AA22808325E6AA5D0073CEBF /* ServicesCustomCell.xib */; };
-		AA22808725E6AB6B0073CEBF /* ServicesCustomCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA22808625E6AB6B0073CEBF /* ServicesCustomCell.swift */; };
-		AA22808B25E6AC950073CEBF /* CharacteristicsCustomCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = AA22808A25E6AC950073CEBF /* CharacteristicsCustomCell.xib */; };
-		AA22808E25E6AE4A0073CEBF /* CharacteristicsCustomCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA22808D25E6AE4A0073CEBF /* CharacteristicsCustomCell.swift */; };
 		AA22809125E6AFB20073CEBF /* BeaconViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA22809025E6AFB20073CEBF /* BeaconViewController.swift */; };
+		AA37709825F2389300F9D7E3 /* SharedData.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA37709725F2389300F9D7E3 /* SharedData.swift */; };
 		AA752E8E225E1E5800F201EC /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA752E8D225E1E5800F201EC /* AppDelegate.swift */; };
 		AA752E90225E1E5800F201EC /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA752E8F225E1E5800F201EC /* ViewController.swift */; };
 		AA752E93225E1E5800F201EC /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA752E91225E1E5800F201EC /* Main.storyboard */; };
@@ -24,11 +21,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		AA22808325E6AA5D0073CEBF /* ServicesCustomCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ServicesCustomCell.xib; sourceTree = "<group>"; };
-		AA22808625E6AB6B0073CEBF /* ServicesCustomCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServicesCustomCell.swift; sourceTree = "<group>"; };
-		AA22808A25E6AC950073CEBF /* CharacteristicsCustomCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = CharacteristicsCustomCell.xib; sourceTree = "<group>"; };
-		AA22808D25E6AE4A0073CEBF /* CharacteristicsCustomCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CharacteristicsCustomCell.swift; sourceTree = "<group>"; };
 		AA22809025E6AFB20073CEBF /* BeaconViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeaconViewController.swift; sourceTree = "<group>"; };
+		AA37709725F2389300F9D7E3 /* SharedData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedData.swift; sourceTree = "<group>"; };
 		AA752E8A225E1E5800F201EC /* BluetoothScanner.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BluetoothScanner.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AA752E8D225E1E5800F201EC /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		AA752E8F225E1E5800F201EC /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -57,10 +51,6 @@
 			isa = PBXGroup;
 			children = (
 				AA752E91225E1E5800F201EC /* Main.storyboard */,
-				AA22808325E6AA5D0073CEBF /* ServicesCustomCell.xib */,
-				AA22808625E6AB6B0073CEBF /* ServicesCustomCell.swift */,
-				AA22808A25E6AC950073CEBF /* CharacteristicsCustomCell.xib */,
-				AA22808D25E6AE4A0073CEBF /* CharacteristicsCustomCell.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -80,6 +70,7 @@
 				AA752EA6225E204700F201EC /* BLObject.swift */,
 				AA752EA8225E243F00F201EC /* BLScannerDelegate.swift */,
 				AA752EA2225E1EBC00F201EC /* BLScanner.swift */,
+				AA37709725F2389300F9D7E3 /* SharedData.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -175,9 +166,7 @@
 			files = (
 				AA752E9B225E1E5800F201EC /* LaunchScreen.storyboard in Resources */,
 				AA752E98225E1E5800F201EC /* Assets.xcassets in Resources */,
-				AA22808425E6AA5D0073CEBF /* ServicesCustomCell.xib in Resources */,
 				AA752E93225E1E5800F201EC /* Main.storyboard in Resources */,
-				AA22808B25E6AC950073CEBF /* CharacteristicsCustomCell.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -188,14 +177,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AA37709825F2389300F9D7E3 /* SharedData.swift in Sources */,
 				AA752E90225E1E5800F201EC /* ViewController.swift in Sources */,
-				AA22808E25E6AE4A0073CEBF /* CharacteristicsCustomCell.swift in Sources */,
 				AA752E8E225E1E5800F201EC /* AppDelegate.swift in Sources */,
 				AA752EA7225E204700F201EC /* BLObject.swift in Sources */,
 				AA22809125E6AFB20073CEBF /* BeaconViewController.swift in Sources */,
 				AA752EA9225E243F00F201EC /* BLScannerDelegate.swift in Sources */,
 				AA752EA3225E1EBC00F201EC /* BLScanner.swift in Sources */,
-				AA22808725E6AB6B0073CEBF /* ServicesCustomCell.swift in Sources */,
 				AA752E96225E1E5800F201EC /* BluetoothScanner.xcdatamodeld in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -274,7 +262,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.4;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -330,7 +318,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.4;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;

@@ -13,7 +13,8 @@ class CharacteristicsCustomCell: UITableViewCell {
     @IBOutlet weak var serviceUUID: UILabel!
     @IBOutlet weak var characteristicUUID: UILabel!
     @IBOutlet weak var characteristicLabel: UILabel!
-
+    @IBOutlet weak var characteristicDescription: UILabel!
+    
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code

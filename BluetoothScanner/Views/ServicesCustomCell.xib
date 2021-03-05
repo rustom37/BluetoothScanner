@@ -9,61 +9,41 @@
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
         <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
-        <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="servicesCustomCell" rowHeight="111" id="3yp-v8-5s2" customClass="ServicesCustomCell" customModule="BluetoothScanner" customModuleProvider="target">
-            <rect key="frame" x="0.0" y="0.0" width="414" height="111"/>
+        <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="servicesCustomCell" rowHeight="72" id="3yp-v8-5s2" customClass="ServicesCustomCell" customModule="BluetoothScanner" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="414" height="72"/>
             <autoresizingMask key="autoresizingMask"/>
             <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="3yp-v8-5s2" id="rAt-zc-MAC">
-                <rect key="frame" x="0.0" y="0.0" width="414" height="111"/>
+                <rect key="frame" x="0.0" y="0.0" width="414" height="72"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
-                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="M1Y-Fh-pYC">
-                        <rect key="frame" x="133" y="7" width="261" height="21"/>
-                        <constraints>
-                            <constraint firstAttribute="width" constant="261" id="aKR-oQ-mWo"/>
-                            <constraint firstAttribute="height" constant="21" id="mKN-9x-cIA"/>
-                        </constraints>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="251" fixedFrame="YES" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="M1Y-Fh-pYC">
+                        <rect key="frame" x="352.5" y="5" width="41.5" height="20.5"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
                         <nil key="textColor"/>
                         <nil key="highlightedColor"/>
                     </label>
-                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="uZ8-kl-0O3">
-                        <rect key="frame" x="19" y="45" width="386" height="55"/>
-                        <constraints>
-                            <constraint firstAttribute="width" constant="386" id="Tt9-X0-uAU"/>
-                            <constraint firstAttribute="height" constant="55" id="feu-4P-rE3"/>
-                        </constraints>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Service UUID:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="FNq-31-une">
+                        <rect key="frame" x="238.5" y="7" width="106" height="21"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
                         <nil key="textColor"/>
                         <nil key="highlightedColor"/>
                     </label>
-                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Service UUID:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="FNq-31-une">
-                        <rect key="frame" x="19" y="7" width="106" height="21"/>
-                        <constraints>
-                            <constraint firstAttribute="width" constant="106" id="afE-fa-9sO"/>
-                            <constraint firstAttribute="height" constant="21" id="zQS-Jh-h29"/>
-                        </constraints>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="uZ8-kl-0O3">
+                        <rect key="frame" x="19" y="36" width="41.5" height="21"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
                         <nil key="textColor"/>
                         <nil key="highlightedColor"/>
                     </label>
                 </subviews>
-                <constraints>
-                    <constraint firstAttribute="bottom" secondItem="uZ8-kl-0O3" secondAttribute="bottom" constant="11" id="2Tl-Up-A84"/>
-                    <constraint firstItem="FNq-31-une" firstAttribute="top" secondItem="rAt-zc-MAC" secondAttribute="top" constant="7" id="540-7I-Zqm"/>
-                    <constraint firstItem="uZ8-kl-0O3" firstAttribute="top" secondItem="M1Y-Fh-pYC" secondAttribute="bottom" constant="17" id="BBa-GA-X4B"/>
-                    <constraint firstItem="FNq-31-une" firstAttribute="leading" secondItem="rAt-zc-MAC" secondAttribute="leading" constant="19" id="Mht-vZ-UMN"/>
-                    <constraint firstItem="uZ8-kl-0O3" firstAttribute="top" secondItem="FNq-31-une" secondAttribute="bottom" constant="17" id="QxS-aP-2cP"/>
-                    <constraint firstItem="uZ8-kl-0O3" firstAttribute="leading" secondItem="rAt-zc-MAC" secondAttribute="leading" constant="19" id="jUa-Ri-7qW"/>
-                    <constraint firstItem="M1Y-Fh-pYC" firstAttribute="leading" secondItem="rAt-zc-MAC" secondAttribute="leadingMargin" constant="113" id="qbj-Js-k25"/>
-                    <constraint firstItem="M1Y-Fh-pYC" firstAttribute="top" secondItem="rAt-zc-MAC" secondAttribute="top" constant="7" id="quS-LT-TA6"/>
-                    <constraint firstAttribute="trailing" secondItem="uZ8-kl-0O3" secondAttribute="trailing" constant="9" id="sNM-eM-Jde"/>
-                </constraints>
             </tableViewCellContentView>
             <connections>
                 <outlet property="serviceLabel" destination="uZ8-kl-0O3" id="6S9-YK-xl7"/>
                 <outlet property="serviceUUID" destination="M1Y-Fh-pYC" id="Its-mc-KXa"/>
             </connections>
-            <point key="canvasLocation" x="263.768115942029" y="73.995535714285708"/>
+            <point key="canvasLocation" x="263.768115942029" y="60.9375"/>
         </tableViewCell>
     </objects>
 </document>

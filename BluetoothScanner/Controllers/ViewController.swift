@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import CoreBluetooth
 
 class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, BLScannerDelegate {
 
@@ -45,11 +46,23 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         if let  peripheral = scanner.getVisibleObjects()[indexPath.row].peripheral {
             scanner.centralManager?.connect(peripheral, options: nil)
             self.title = "Connected to \(scanner.getVisibleObjects()[indexPath.row].displayName ?? "Uknown Device")"
-            self.view.backgroundColor = UIColor.green
             tableView.deselectRow(at: indexPath, animated: true)
 
             let vc: BeaconViewController = self.storyboard?.instantiateViewController(withIdentifier: "BeaconViewController") as! BeaconViewController
-            vc.servicesArray = peripheral.services
+            vc.peripheral = peripheral
+
+            var charArray: [CBCharacteristic]  = []
+            if let services = peripheral.services {
+                for service in services {
+                    if let characteristics = service.characteristics  {
+                        for characteristic in characteristics {
+                            charArray.append(characteristic)
+                        }
+                    }
+                }
+            }
+            vc.availableScanner = scanner
+            vc.charachteristicsArray  = charArray
             self.navigationController?.pushViewController(vc, animated: true)
         }
     }

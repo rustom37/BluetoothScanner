@@ -9,25 +9,28 @@
 import UIKit
 import CoreBluetooth
 
-class BeaconViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
+class BeaconViewController: UIViewController, CBPeripheralDelegate {
 
-    @IBOutlet weak var servicesTableView: UITableView!
-    @IBOutlet weak var characteristicsTableView: UITableView!
+    @IBOutlet weak var shareButton: UIButton!
 
-    var servicesArray:  [CBService]?
+    var peripheral: CBPeripheral?
+    var charachteristicsArray: [CBCharacteristic]?
+    var informationArray: [SharedData]?
+    var stringToBeShared: String =  ""
+    var availableScanner: BLScanner?
+
+    let NUS_UUID: CBUUID = CBUUID(data: Data([0x6E, 0x40, 0x00, 0x01, 0xB5, 0xA3, 0xF3, 0x93, 0xE0, 0xA9, 0xE5, 0x0E, 0x24, 0xDC, 0xCA, 0xBE]))
+    let WRITE_UUID: CBUUID = CBUUID(data: Data([0x6E, 0x40, 0x00, 0x02, 0xB5, 0xA3, 0xF3, 0x93, 0xE0, 0xA9, 0xE5, 0x0E, 0x24, 0xDC, 0xCA, 0xBE]))
+    let READ_UUID: CBUUID = CBUUID(data: Data([0x6E, 0x40, 0x00, 0x03, 0xB5, 0xA3, 0xF3, 0x93, 0xE0, 0xA9, 0xE5, 0x0E, 0x24, 0xDC, 0xCA, 0xBE]))
 
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
-        servicesTableView.delegate = self
-        servicesTableView.dataSource = self
-        servicesTableView.register(UITableViewCell.self, forCellReuseIdentifier: "servicesCustomCell")
-        servicesTableView.rowHeight = UITableView.automaticDimension
+        peripheral?.delegate  = self
 
-        characteristicsTableView.delegate = self
-        characteristicsTableView.dataSource = self
-        characteristicsTableView.register(UITableViewCell.self, forCellReuseIdentifier: "characteristicsCustomCell")
-        characteristicsTableView.rowHeight = UITableView.automaticDimension
+        self.title = "\(peripheral?.name ?? "Unknown Device")."
+
+        shareButton.isEnabled = false
 
         let downSwipe = UISwipeGestureRecognizer(target: self, action: #selector(handleSwipes(_:)))
         downSwipe.direction = .down
@@ -41,36 +44,49 @@ class BeaconViewController: UIViewController, UITableViewDelegate, UITableViewDa
         }
     }
 
-    @IBAction func doneButtonPressed(_ sender: Any) {
-        dismiss(animated: true, completion: nil)
-    }
-
-    @IBAction func shareButtonPressed(_ sender: Any) {
-
-    }
-
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        switch tableView {
-            case servicesTableView:
-                return servicesArray?.count ?? 0
-            case  characteristicsTableView:
-                var count  = 0
-                if let services = servicesArray {
-                    for service in services {
-                        if let characteristics = service.characteristics {
-                            for _ in characteristics {
-                                count += 1
+    @IBAction func receiveDataPressed(_ sender: Any) {
+        if let services = peripheral?.services {
+            for service in services {
+                if  service.uuid == NUS_UUID {
+                    if let characteristics  = service.characteristics {
+                        for characteristic in characteristics {
+                            if characteristic.uuid == READ_UUID && characteristic.properties.contains(.notify) {
+                                print("Receiving Data...")
+                                peripheral?.setNotifyValue(true, for: characteristic)
                             }
                         }
                     }
                 }
-                return count
-            default:
-                fatalError("Invalid table")
             }
+        }
+        shareButton.isEnabled = true
     }
 
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+    @IBAction func writeDataPressed(_ sender: Any) {
+        if let services = peripheral?.services {
+            for service in services {
+                if service.uuid == NUS_UUID {
+                    if let characteristics = service.characteristics {
+                        for characteristic in characteristics {
+                            if characteristic.uuid == WRITE_UUID && characteristic.properties.contains(.write) {
+                                print("Writing data without response...")
+                                peripheral?.writeValue(Data([0x01]), for: characteristic, type: CBCharacteristicWriteType.withResponse)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 
+    @IBAction func shareButtonPressed(_ sender: Any) {
+        if let scanner = availableScanner {
+            for data in scanner.getInformation() {
+                stringToBeShared += "Characteristic UUID:  \(data.sharedUUID)\n=> Value: \(data.sharedValue)\n---------------------\n"
+            }
+        }
+        let items = [stringToBeShared]
+        let ac = UIActivityViewController(activityItems: items, applicationActivities: nil)
+        present(ac, animated: true)
     }
 }

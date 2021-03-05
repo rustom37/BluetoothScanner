@@ -15,7 +15,10 @@ class BLScanner: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
     var centralManager : CBCentralManager?
     private var peripherals: [BLObject] = []
     var delegate : BLScannerDelegate?
-    var doorPeripheral : CBPeripheral?
+    var connectedPeripheral : CBPeripheral?
+    private var informationToBeShared: [SharedData] = []
+
+    let READ_UUID: CBUUID = CBUUID(data: Data([0x6E, 0x40, 0x00, 0x03, 0xB5, 0xA3, 0xF3, 0x93, 0xE0, 0xA9, 0xE5, 0x0E, 0x24, 0xDC, 0xCA, 0xBE]))
         
     override init() {
         super.init()
@@ -75,9 +78,9 @@ class BLScanner: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
     
         print("Connected to \(peripheral.name ?? "Uknown Device")")
         centralManager?.stopScan()
-        doorPeripheral = peripheral
-        doorPeripheral?.delegate = self
-        doorPeripheral?.discoverServices(nil)
+        connectedPeripheral = peripheral
+        connectedPeripheral?.delegate = self
+        connectedPeripheral?.discoverServices(nil)
     }
    
     func centralManager(_ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: Error?) {
@@ -85,11 +88,40 @@ class BLScanner: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
         
         delegate?.didFindInfo("Failed to connect.")
     }
+
+
+    func peripheralManager(_ peripheral: CBPeripheralManager, didReceiveRead request: CBATTRequest) {
+        let response = "Hey there".data(using: .utf8)
+        request.value = response
+        peripheral.respond(to: request, withResult: .success)
+    }
+
+    public func peripheralManager(_ peripheral: CBPeripheralManager, didReceiveWrite request: CBATTRequest) {
+        print("Did receive write request.")
+        let response = "Wrote.".data(using: .utf8)
+        request.value = response
+        peripheral.respond(to: request, withResult: .success)
+    }
+
+    func peripheral(_ peripheral:CBPeripheral, didWriteValueFor characteristic: CBCharacteristic, error: Error?) {
+        if error == nil {
+            print("TRUE WRITING")
+        }
+
+    }
+
+    func peripheral(_ peripheral: CBPeripheral, didUpdateNotificationStateFor characteristic: CBCharacteristic, error: Error?) {
+            if error == nil {
+                print("TRUE")
+                if characteristic.uuid == READ_UUID && characteristic.isNotifying == true {
+                    retrieveData(characteristic: characteristic)
+                } else {
+                    print("Status has not changed.")
+                }
+            }
+        }
     
     func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
-        
-        var i = 1
-        
         if let errorService = error {
             print("Error: \(errorService)")
             return
@@ -97,53 +129,61 @@ class BLScanner: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
         
         if let services = peripheral.services {
             for service in services {
-                print("\(i). Service: Discover service \(service)")
-                print("Service UUID: \(service.uuid) ")
-                
-                i += 1
                 peripheral.discoverCharacteristics(nil, for: service)
             }
         }
-        
-        print("///////////////////////////////////////////////////////////")
     }
     
     func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
-        
         if let errorCharacteristics = error {
             print("Error: \(errorCharacteristics)")
             return
         }
         
         if let characteristics = service.characteristics {
-            
-            print("Found \(characteristics.count) characteristic(s)!")
-            
             for characteristic in characteristics {
-                print("Char: service \(service.uuid) Discover char \(characteristic)")
-                print("Char UUID: \(characteristic.uuid)")
-                
-                if(characteristic.properties == CBCharacteristicProperties.read) {
-                    peripheral.readValue(for: characteristic)
+                if characteristic.properties.contains(.read) {
+                  print("\(characteristic.uuid): properties contains .read")
+                }
+                if characteristic.properties.contains(.notify) {
+                  print("\(characteristic.uuid): properties contains .notify")
+                }
+                if characteristic.properties.contains(.write) {
+                    print("\(characteristic.uuid): properties contains .write")
+                }
+                if characteristic.properties.contains(.writeWithoutResponse) {
+                    print("\(characteristic.uuid): properties contains .writeWithoutResponse")
                 }
             }
         }
     }
     
     func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
-        
         if let errorCharacteristic = error {
             print("Error: \(errorCharacteristic)")
             return
         }
-        
-        var valueString = String(data:characteristic.value!, encoding: .utf8)
-        if let valueString = valueString {
-            delegate?.didFindInfo(valueString)
-        } else {
-            delegate?.didFindInfo("NO DATA FOUND")
+
+        if let charValue = characteristic.value {
+                print("Characteristic UUID: \(characteristic.uuid), value: \(charValue)")
+                informationToBeShared.append(SharedData(sharedUUID: characteristic.uuid, sharedValue: charValue))
         }
-        print("Characteristic UUID: \(characteristic.uuid), value: \(String(describing: characteristic.value ?? Data(base64Encoded: "Unknown Value."))), and ValueString: \(valueString ?? "Unknown Value String.")")
+    }
+
+    func retrieveData(characteristic: CBCharacteristic) {
+        if let charValue = characteristic.value {
+            informationToBeShared.append(SharedData(sharedUUID: characteristic.uuid, sharedValue: charValue))
+        } else {
+            informationToBeShared.append(SharedData(sharedUUID: characteristic.uuid))
+        }
+    }
+
+    func getInformation() -> [SharedData] {
+        return informationToBeShared
+    }
+
+    func deleteInformation() {
+        informationToBeShared.removeAll()
     }
     
     func getVisibleObjects() -> [BLObject] {
