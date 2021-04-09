@@ -36,7 +36,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "tableViewCell", for: indexPath)
         
-        cell.textLabel?.text = "Name: \(scanner.getVisibleObjects()[indexPath.row].displayName ?? "Name Unknown")       RSSI: \(scanner.getVisibleObjects()[indexPath.row].RSSI ?? "RSSI Unknown")"
+        cell.textLabel?.text = "Name: \(scanner.getVisibleObjects()[indexPath.row].displayName ?? "Name Unknown")"
         cell.textLabel?.adjustsFontSizeToFitWidth = true
         cell.textLabel?.minimumScaleFactor = 0.25
         return cell
@@ -50,19 +50,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
 
             let vc: BeaconViewController = self.storyboard?.instantiateViewController(withIdentifier: "BeaconViewController") as! BeaconViewController
             vc.peripheral = peripheral
-
-            var charArray: [CBCharacteristic]  = []
-            if let services = peripheral.services {
-                for service in services {
-                    if let characteristics = service.characteristics  {
-                        for characteristic in characteristics {
-                            charArray.append(characteristic)
-                        }
-                    }
-                }
-            }
             vc.availableScanner = scanner
-            vc.charachteristicsArray  = charArray
             self.navigationController?.pushViewController(vc, animated: true)
         }
     }

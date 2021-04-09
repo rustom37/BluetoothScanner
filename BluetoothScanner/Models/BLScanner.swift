@@ -9,6 +9,8 @@
 import Foundation
 import UIKit
 import CoreBluetooth
+import ReactiveCocoa
+import ReactiveSwift
 
 class BLScanner: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
     
@@ -17,9 +19,8 @@ class BLScanner: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
     var delegate : BLScannerDelegate?
     var connectedPeripheral : CBPeripheral?
     private var informationToBeShared: [SharedData] = []
+    var receivingData : MutableProperty<Bool> = MutableProperty(false)
 
-    let READ_UUID: CBUUID = CBUUID(data: Data([0x6E, 0x40, 0x00, 0x03, 0xB5, 0xA3, 0xF3, 0x93, 0xE0, 0xA9, 0xE5, 0x0E, 0x24, 0xDC, 0xCA, 0xBE]))
-        
     override init() {
         super.init()
         centralManager = CBCentralManager(delegate: self, queue: nil)
@@ -89,23 +90,10 @@ class BLScanner: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
         delegate?.didFindInfo("Failed to connect.")
     }
 
-
-    func peripheralManager(_ peripheral: CBPeripheralManager, didReceiveRead request: CBATTRequest) {
-        let response = "Hey there".data(using: .utf8)
-        request.value = response
-        peripheral.respond(to: request, withResult: .success)
-    }
-
-    public func peripheralManager(_ peripheral: CBPeripheralManager, didReceiveWrite request: CBATTRequest) {
-        print("Did receive write request.")
-        let response = "Wrote.".data(using: .utf8)
-        request.value = response
-        peripheral.respond(to: request, withResult: .success)
-    }
-
     func peripheral(_ peripheral:CBPeripheral, didWriteValueFor characteristic: CBCharacteristic, error: Error?) {
         if error == nil {
             print("TRUE WRITING")
+            receivingData.value = true
         }
 
     }
@@ -113,11 +101,6 @@ class BLScanner: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
     func peripheral(_ peripheral: CBPeripheral, didUpdateNotificationStateFor characteristic: CBCharacteristic, error: Error?) {
             if error == nil {
                 print("TRUE")
-                if characteristic.uuid == READ_UUID && characteristic.isNotifying == true {
-                    retrieveData(characteristic: characteristic)
-                } else {
-                    print("Status has not changed.")
-                }
             }
         }
     
@@ -140,13 +123,15 @@ class BLScanner: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
             return
         }
         
-        if let characteristics = service.characteristics {
+             if let characteristics = service.characteristics {
             for characteristic in characteristics {
                 if characteristic.properties.contains(.read) {
                   print("\(characteristic.uuid): properties contains .read")
                 }
                 if characteristic.properties.contains(.notify) {
                   print("\(characteristic.uuid): properties contains .notify")
+                  print("Receiving Data...")
+                  peripheral.setNotifyValue(true, for: characteristic)
                 }
                 if characteristic.properties.contains(.write) {
                     print("\(characteristic.uuid): properties contains .write")
@@ -165,16 +150,13 @@ class BLScanner: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
         }
 
         if let charValue = characteristic.value {
-                print("Characteristic UUID: \(characteristic.uuid), value: \(charValue)")
+            if charValue.hexEncodedString() == "ffffffffffffffffffffffffffffffff" {
+                print("Done.")
+                receivingData.value = false
+            } else {
+                print("Characteristic UUID: \(characteristic.uuid), value: \(charValue.hexEncodedString())")
                 informationToBeShared.append(SharedData(sharedUUID: characteristic.uuid, sharedValue: charValue))
-        }
-    }
-
-    func retrieveData(characteristic: CBCharacteristic) {
-        if let charValue = characteristic.value {
-            informationToBeShared.append(SharedData(sharedUUID: characteristic.uuid, sharedValue: charValue))
-        } else {
-            informationToBeShared.append(SharedData(sharedUUID: characteristic.uuid))
+            }
         }
     }
 
@@ -200,5 +182,17 @@ class BLScanner: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
     
     func updateObjects() {
         delegate?.update(self)
+    }
+}
+
+extension Data {
+    struct HexEncodingOptions: OptionSet {
+        let rawValue: Int
+        static let upperCase = HexEncodingOptions(rawValue: 1 << 0)
+    }
+
+    func hexEncodedString(options: HexEncodingOptions = []) -> String {
+        let format = options.contains(.upperCase) ? "%02hhX" : "%02hhx"
+        return self.map { String(format: format, $0) }.joined()
     }
 }
