@@ -11,6 +11,7 @@ import CoreBluetooth
 import ReactiveCocoa
 import ReactiveSwift
 
+/// View controller that displays  the connected peripheral.
 class BeaconViewController: UIViewController, CBPeripheralDelegate {
 
     @IBOutlet weak var shareButton: UIButton!
@@ -23,6 +24,7 @@ class BeaconViewController: UIViewController, CBPeripheralDelegate {
     let NUS_UUID: CBUUID = CBUUID(data: Data([0x6E, 0x40, 0x00, 0x01, 0xB5, 0xA3, 0xF3, 0x93, 0xE0, 0xA9, 0xE5, 0x0E, 0x24, 0xDC, 0xCA, 0xBE]))
     let WRITE_UUID: CBUUID = CBUUID(data: Data([0x6E, 0x40, 0x00, 0x02, 0xB5, 0xA3, 0xF3, 0x93, 0xE0, 0xA9, 0xE5, 0x0E, 0x24, 0xDC, 0xCA, 0xBE]))
 
+    /// Loads the view
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
@@ -41,6 +43,8 @@ class BeaconViewController: UIViewController, CBPeripheralDelegate {
         self.loadingSpinner.reactive.isAnimating <~ (availableScanner.receivingData.producer.map { value in return value ? true : false })
     }
 
+    /// When pressed on the retrieve data from flash button, data retrieval from flash begins
+    /// - Parameter sender: Any touch on button
     @IBAction func writeDataPressed(_ sender: Any) {
         if let services = peripheral?.services {
             for service in services {
@@ -58,6 +62,8 @@ class BeaconViewController: UIViewController, CBPeripheralDelegate {
         }
     }
 
+    /// When pressed on the share data button, data gets shared
+    /// - Parameter sender: Any touch on button
     @IBAction func shareButtonPressed(_ sender: Any) {
         var arr = availableScanner.getInformation()
         arr.removeFirst()
