@@ -29,7 +29,7 @@
         <!--View Controller-->
         <scene sceneID="tne-QT-ifu">
             <objects>
-                <viewController id="BYZ-38-t0r" customClass="ViewController" customModule="BluetoothScanner" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="BYZ-38-t0r" customClass="ViewController" customModule="BluetoothScanner" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -39,14 +39,14 @@
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <prototypes>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" restorationIdentifier="TableViewCellClass" preservesSuperviewLayoutMargins="YES" selectionStyle="none" indentationWidth="10" reuseIdentifier="tableViewCell" id="haf-er-8zD">
-                                        <rect key="frame" x="0.0" y="28" width="414" height="42.5"/>
+                                        <rect key="frame" x="0.0" y="28" width="414" height="43"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="haf-er-8zD" id="pD6-GM-VGx">
-                                            <rect key="frame" x="0.0" y="0.0" width="414" height="42.5"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="414" height="43"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Name: " textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="6B5-EB-vef">
-                                                    <rect key="frame" x="20" y="11" width="374" height="21"/>
+                                                    <rect key="frame" x="20" y="11" width="374" height="21.5"/>
                                                     <accessibility key="accessibilityConfiguration" identifier="textLabel"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                     <nil key="textColor"/>
@@ -106,13 +106,13 @@
         <!--Beacon View Controller-->
         <scene sceneID="J0Z-Ub-i8r">
             <objects>
-                <viewController storyboardIdentifier="BeaconViewController" useStoryboardIdentifierAsRestorationIdentifier="YES" id="JND-2o-VjK" customClass="BeaconViewController" customModule="BluetoothScanner" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="BeaconViewController" useStoryboardIdentifierAsRestorationIdentifier="YES" id="JND-2o-VjK" customClass="BeaconViewController" customModule="BluetoothScanner" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="6IJ-5d-uvz">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="pAt-iV-L3t">
-                                <rect key="frame" x="139" y="611" width="137" height="39"/>
+                                <rect key="frame" x="139" y="429" width="137" height="39"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="22"/>
                                 <state key="normal" title="Share Content"/>
                                 <connections>
@@ -120,7 +120,7 @@
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="sVY-39-VTn">
-                                <rect key="frame" x="107" y="263" width="200" height="39"/>
+                                <rect key="frame" x="107" y="162" width="200" height="39"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="22"/>
                                 <state key="normal" title="Retrieve from Flash"/>
                                 <connections>
@@ -128,35 +128,100 @@
                                 </connections>
                             </button>
                             <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" style="medium" translatesAutoresizingMaskIntoConstraints="NO" id="GQj-uE-Oa3">
-                                <rect key="frame" x="168" y="438" width="79" height="20"/>
+                                <rect key="frame" x="168" y="303" width="79" height="20"/>
                             </activityIndicatorView>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="u5R-Qc-ULk">
+                                <rect key="frame" x="117" y="653" width="184" height="39"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="22"/>
+                                <state key="normal" title="Plot Measurements"/>
+                                <connections>
+                                    <action selector="plotButtonPressed:" destination="JND-2o-VjK" eventType="touchUpInside" id="gj5-Oj-HGx"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="lBB-Sv-zN1"/>
                         <color key="backgroundColor" systemColor="systemGray6Color"/>
                         <constraints>
                             <constraint firstItem="lBB-Sv-zN1" firstAttribute="trailing" secondItem="GQj-uE-Oa3" secondAttribute="trailing" constant="167" id="2PX-F2-Lq5"/>
+                            <constraint firstItem="u5R-Qc-ULk" firstAttribute="leading" secondItem="lBB-Sv-zN1" secondAttribute="leading" constant="117" id="9Qk-jS-Z6M"/>
                             <constraint firstItem="lBB-Sv-zN1" firstAttribute="trailing" secondItem="sVY-39-VTn" secondAttribute="trailing" constant="107" id="9ac-Nd-707"/>
                             <constraint firstItem="pAt-iV-L3t" firstAttribute="leading" secondItem="lBB-Sv-zN1" secondAttribute="leading" constant="139" id="A9t-Cq-b2Z"/>
-                            <constraint firstItem="sVY-39-VTn" firstAttribute="top" secondItem="lBB-Sv-zN1" secondAttribute="top" constant="175" id="ItY-Rj-xXk"/>
+                            <constraint firstItem="sVY-39-VTn" firstAttribute="top" secondItem="lBB-Sv-zN1" secondAttribute="top" constant="74" id="ItY-Rj-xXk"/>
                             <constraint firstItem="sVY-39-VTn" firstAttribute="leading" secondItem="lBB-Sv-zN1" secondAttribute="leading" constant="107" id="JxL-cx-jSk"/>
                             <constraint firstItem="lBB-Sv-zN1" firstAttribute="trailing" secondItem="pAt-iV-L3t" secondAttribute="trailing" constant="138" id="N9F-Vi-wXY"/>
-                            <constraint firstItem="GQj-uE-Oa3" firstAttribute="top" secondItem="sVY-39-VTn" secondAttribute="bottom" constant="136" id="Onx-i7-Ybk"/>
-                            <constraint firstItem="lBB-Sv-zN1" firstAttribute="bottom" secondItem="pAt-iV-L3t" secondAttribute="bottom" constant="212" id="PST-Kk-rEj"/>
+                            <constraint firstItem="lBB-Sv-zN1" firstAttribute="bottom" secondItem="u5R-Qc-ULk" secondAttribute="bottom" constant="170" id="OhS-bd-7gq"/>
+                            <constraint firstItem="GQj-uE-Oa3" firstAttribute="top" secondItem="sVY-39-VTn" secondAttribute="bottom" constant="102" id="Onx-i7-Ybk"/>
+                            <constraint firstItem="lBB-Sv-zN1" firstAttribute="trailing" secondItem="u5R-Qc-ULk" secondAttribute="trailing" constant="113" id="gZO-4D-lJJ"/>
                             <constraint firstItem="GQj-uE-Oa3" firstAttribute="leading" secondItem="lBB-Sv-zN1" secondAttribute="leading" constant="168" id="uYt-Wr-P4w"/>
+                            <constraint firstItem="u5R-Qc-ULk" firstAttribute="top" secondItem="pAt-iV-L3t" secondAttribute="bottom" constant="185" id="ys1-AB-6aT"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="jj5-ed-cj7" userLabel="Done"/>
                     <connections>
                         <outlet property="loadingSpinner" destination="GQj-uE-Oa3" id="pxb-dh-jZz"/>
+                        <outlet property="plotButton" destination="u5R-Qc-ULk" id="LJn-5Y-o5j"/>
                         <outlet property="shareButton" destination="pAt-iV-L3t" id="i3Z-Fe-R1v"/>
+                        <segue destination="smF-bP-iMt" kind="show" id="Ezh-xr-eCZ"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Dmi-az-kQh" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="2908.6956521739135" y="95.758928571428569"/>
         </scene>
+        <!--Plot Measurements-->
+        <scene sceneID="fwY-L6-g0v">
+            <objects>
+                <viewController storyboardIdentifier="PlotMeasurementsViewController" title="Plot Measurements" id="3dr-m9-Pm8" customClass="PlotMeasurementsViewController" customModule="BluetoothScanner" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="Mgb-zZ-8Hm">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="808"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="LnB-mb-XpP" customClass="LineChartView" customModule="Charts">
+                                <rect key="frame" x="20" y="20" width="374" height="754"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                            </view>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="6Q1-uH-HKA"/>
+                        <color key="backgroundColor" systemColor="systemGray6Color"/>
+                        <constraints>
+                            <constraint firstItem="LnB-mb-XpP" firstAttribute="leading" secondItem="6Q1-uH-HKA" secondAttribute="leading" constant="20" id="JjJ-yu-vRK"/>
+                            <constraint firstItem="LnB-mb-XpP" firstAttribute="top" secondItem="6Q1-uH-HKA" secondAttribute="top" constant="20" id="Opm-J5-lGl"/>
+                            <constraint firstItem="6Q1-uH-HKA" firstAttribute="trailing" secondItem="LnB-mb-XpP" secondAttribute="trailing" constant="20" id="VTt-s3-mWK"/>
+                            <constraint firstItem="6Q1-uH-HKA" firstAttribute="bottom" secondItem="LnB-mb-XpP" secondAttribute="bottom" id="sZB-wI-Pey"/>
+                        </constraints>
+                    </view>
+                    <navigationItem key="navigationItem" id="ND0-K5-So9"/>
+                    <simulatedNavigationBarMetrics key="simulatedTopBarMetrics" translucent="NO" prompted="NO"/>
+                    <connections>
+                        <outlet property="chartView" destination="LnB-mb-XpP" id="urh-8e-oiv"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="gtf-rJ-W2M" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="4866.666666666667" y="95.758928571428569"/>
+        </scene>
+        <!--Navigation Controller-->
+        <scene sceneID="HNe-eX-vLw">
+            <objects>
+                <navigationController id="smF-bP-iMt" sceneMemberID="viewController">
+                    <navigationItem key="navigationItem" id="l1P-FI-aYH"/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="AAu-63-CUW">
+                        <rect key="frame" x="0.0" y="44" width="414" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <connections>
+                        <segue destination="3dr-m9-Pm8" kind="relationship" relationship="rootViewController" id="1xG-sj-7vb"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="C3Z-SV-QeY" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="3830" y="96"/>
+        </scene>
     </scenes>
     <resources>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
         <systemColor name="systemGray6Color">
             <color red="0.94901960784313721" green="0.94901960784313721" blue="0.96862745098039216" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>

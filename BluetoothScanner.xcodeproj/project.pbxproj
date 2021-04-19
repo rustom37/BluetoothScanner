@@ -10,6 +10,11 @@
 		AA0F808F262069E60023E242 /* ExternalAccessory.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA0F808E262069E60023E242 /* ExternalAccessory.framework */; };
 		AA22809125E6AFB20073CEBF /* BeaconViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA22809025E6AFB20073CEBF /* BeaconViewController.swift */; };
 		AA37709825F2389300F9D7E3 /* SharedData.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA37709725F2389300F9D7E3 /* SharedData.swift */; };
+		AA3C4AFF2626E5E8003821D1 /* ReadFromLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA3C4AFE2626E5E8003821D1 /* ReadFromLog.swift */; };
+		AA3C4B0126271320003821D1 /* BinUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA3C4B0026271320003821D1 /* BinUtils.swift */; };
+		AA3C4B062627316D003821D1 /* PlotMeasurementsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA3C4B052627316D003821D1 /* PlotMeasurementsViewController.swift */; };
+		AA6F9B95262DB4FA00BBF074 /* Charts.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA6F9B94262DB4FA00BBF074 /* Charts.xcframework */; };
+		AA6F9B96262DB4FA00BBF074 /* Charts.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = AA6F9B94262DB4FA00BBF074 /* Charts.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		AA752E8E225E1E5800F201EC /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA752E8D225E1E5800F201EC /* AppDelegate.swift */; };
 		AA752E90225E1E5800F201EC /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA752E8F225E1E5800F201EC /* ViewController.swift */; };
 		AA752E93225E1E5800F201EC /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA752E91225E1E5800F201EC /* Main.storyboard */; };
@@ -36,6 +41,7 @@
 			files = (
 				AAFC0C5125FFBAF400EEF10D /* ReactiveMapKit.xcframework in Embed Frameworks */,
 				AAFC0C4E25FFBAEF00EEF10D /* ReactiveSwift.xcframework in Embed Frameworks */,
+				AA6F9B96262DB4FA00BBF074 /* Charts.xcframework in Embed Frameworks */,
 				AAFC0C4A25FFBAEC00EEF10D /* ReactiveCocoa.xcframework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
@@ -48,6 +54,11 @@
 		AA0F8090262079BC0023E242 /* BluetoothScanner.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = BluetoothScanner.entitlements; path = ../../../.Trash/BluetoothScanner.entitlements; sourceTree = "<group>"; };
 		AA22809025E6AFB20073CEBF /* BeaconViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeaconViewController.swift; sourceTree = "<group>"; };
 		AA37709725F2389300F9D7E3 /* SharedData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedData.swift; sourceTree = "<group>"; };
+		AA3C4AFE2626E5E8003821D1 /* ReadFromLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadFromLog.swift; sourceTree = "<group>"; };
+		AA3C4B0026271320003821D1 /* BinUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BinUtils.swift; sourceTree = "<group>"; };
+		AA3C4B052627316D003821D1 /* PlotMeasurementsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlotMeasurementsViewController.swift; sourceTree = "<group>"; };
+		AA6F9B8E262DAA0E00BBF074 /* Charts.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Charts.framework; path = Carthage/Build/iOS/Charts.framework; sourceTree = "<group>"; };
+		AA6F9B94262DB4FA00BBF074 /* Charts.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = Charts.xcframework; path = Carthage/Build/Charts.xcframework; sourceTree = "<group>"; };
 		AA752E8A225E1E5800F201EC /* BluetoothScanner.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BluetoothScanner.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AA752E8D225E1E5800F201EC /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		AA752E8F225E1E5800F201EC /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -71,6 +82,7 @@
 			files = (
 				AAFC0C5025FFBAF400EEF10D /* ReactiveMapKit.xcframework in Frameworks */,
 				AAFC0C4D25FFBAEF00EEF10D /* ReactiveSwift.xcframework in Frameworks */,
+				AA6F9B95262DB4FA00BBF074 /* Charts.xcframework in Frameworks */,
 				AA0F808F262069E60023E242 /* ExternalAccessory.framework in Frameworks */,
 				AAFC0C4925FFBAEC00EEF10D /* ReactiveCocoa.xcframework in Frameworks */,
 			);
@@ -92,6 +104,7 @@
 			children = (
 				AA752E8F225E1E5800F201EC /* ViewController.swift */,
 				AA22809025E6AFB20073CEBF /* BeaconViewController.swift */,
+				AA3C4B052627316D003821D1 /* PlotMeasurementsViewController.swift */,
 			);
 			path = Controllers;
 			sourceTree = "<group>";
@@ -105,6 +118,15 @@
 				AA37709725F2389300F9D7E3 /* SharedData.swift */,
 			);
 			path = Models;
+			sourceTree = "<group>";
+		};
+		AA3C4AFC2626DF54003821D1 /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				AA3C4AFE2626E5E8003821D1 /* ReadFromLog.swift */,
+				AA3C4B0026271320003821D1 /* BinUtils.swift */,
+			);
+			path = Helpers;
 			sourceTree = "<group>";
 		};
 		AA752E81225E1E5800F201EC = {
@@ -128,6 +150,7 @@
 		AA752E8C225E1E5800F201EC /* BluetoothScanner */ = {
 			isa = PBXGroup;
 			children = (
+				AA3C4AFC2626DF54003821D1 /* Helpers */,
 				AA22808225E6A96C0073CEBF /* Models */,
 				AA22808125E6A94D0073CEBF /* Controllers */,
 				AA22808025E6A93D0073CEBF /* Views */,
@@ -143,6 +166,8 @@
 		AAFC0C4725FFBAEC00EEF10D /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				AA6F9B94262DB4FA00BBF074 /* Charts.xcframework */,
+				AA6F9B8E262DAA0E00BBF074 /* Charts.framework */,
 				AA0F808E262069E60023E242 /* ExternalAccessory.framework */,
 				AAFC0C4F25FFBAF400EEF10D /* ReactiveMapKit.xcframework */,
 				AAFC0C4C25FFBAEF00EEF10D /* ReactiveSwift.xcframework */,
@@ -224,11 +249,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				AA37709825F2389300F9D7E3 /* SharedData.swift in Sources */,
+				AA3C4B0126271320003821D1 /* BinUtils.swift in Sources */,
 				AA752E90225E1E5800F201EC /* ViewController.swift in Sources */,
 				AA752E8E225E1E5800F201EC /* AppDelegate.swift in Sources */,
 				AA752EA7225E204700F201EC /* BLObject.swift in Sources */,
 				AA22809125E6AFB20073CEBF /* BeaconViewController.swift in Sources */,
 				AA752EA9225E243F00F201EC /* BLScannerDelegate.swift in Sources */,
+				AA3C4AFF2626E5E8003821D1 /* ReadFromLog.swift in Sources */,
+				AA3C4B062627316D003821D1 /* PlotMeasurementsViewController.swift in Sources */,
 				AA752EA3225E1EBC00F201EC /* BLScanner.swift in Sources */,
 				AA752E96225E1E5800F201EC /* BluetoothScanner.xcdatamodeld in Sources */,
 			);
@@ -383,6 +411,10 @@
 				CODE_SIGN_ENTITLEMENTS = BluetoothScanner/BluetoothScanner.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = VB7392NN4K;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Build/iOS",
+				);
 				INFOPLIST_FILE = BluetoothScanner/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.2;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -403,6 +435,10 @@
 				CODE_SIGN_ENTITLEMENTS = BluetoothScanner/BluetoothScanner.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = VB7392NN4K;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Build/iOS",
+				);
 				INFOPLIST_FILE = BluetoothScanner/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.2;
 				LD_RUNPATH_SEARCH_PATHS = (

@@ -16,6 +16,7 @@ class BeaconViewController: UIViewController, CBPeripheralDelegate {
 
     @IBOutlet weak var shareButton: UIButton!
     @IBOutlet weak var loadingSpinner: UIActivityIndicatorView!
+    @IBOutlet weak var plotButton: UIButton!
 
     var peripheral: CBPeripheral?
     var stringToBeShared: String =  ""
@@ -32,6 +33,15 @@ class BeaconViewController: UIViewController, CBPeripheralDelegate {
         loadingSpinner.hidesWhenStopped = true
         self.title = "\(peripheral?.name ?? "Unknown Device")."
         self.shareButton.reactive.isEnabled <~ (availableScanner.receivingData.producer.map { value in
+            if (value == false) && (self.availableScanner.getInformation().isEmpty) {
+                return false
+            } else if (value == false) && !(self.availableScanner.getInformation().isEmpty) {
+                return true
+            } else {
+                return false
+            }
+        })
+        self.plotButton.reactive.isEnabled <~ (availableScanner.receivingData.producer.map { value in
             if (value == false) && (self.availableScanner.getInformation().isEmpty) {
                 return false
             } else if (value == false) && !(self.availableScanner.getInformation().isEmpty) {
@@ -71,9 +81,25 @@ class BeaconViewController: UIViewController, CBPeripheralDelegate {
         for data in arr {
             stringToBeShared += "\(data.sharedValue.hexEncodedString())\n"
         }
-        availableScanner.deleteInformation()
         let items = [stringToBeShared]
         let ac = UIActivityViewController(activityItems: items, applicationActivities: nil)
         present(ac, animated: true)
+    }
+
+    /// Plots the data when pressed
+    /// - Parameter sender: Any touch on button
+    @IBAction func plotButtonPressed(_ sender: Any) {
+        var arr = availableScanner.getInformation()
+        arr.removeFirst()
+        arr.removeLast()
+        var arrData: [String] = []
+        for data in arr {
+            arrData.append("\(data.sharedValue.hexEncodedString())")
+        }
+        let (sensorDataMultipleMeasurements,_) = decodeData(rawData: arrData)
+        UserDefaults.standard.setValue(sensorDataMultipleMeasurements, forKey: "dataArray")
+
+        let vc: PlotMeasurementsViewController = self.storyboard?.instantiateViewController(withIdentifier: "PlotMeasurementsViewController") as! PlotMeasurementsViewController
+        self.navigationController?.pushViewController(vc, animated: true)
     }
 }
