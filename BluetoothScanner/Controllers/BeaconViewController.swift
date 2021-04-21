@@ -78,12 +78,55 @@ class BeaconViewController: UIViewController, CBPeripheralDelegate {
         var arr = availableScanner.getInformation()
         arr.removeFirst()
         arr.removeLast()
-        for data in arr {
-            stringToBeShared += "\(data.sharedValue.hexEncodedString())\n"
-        }
-        let items = [stringToBeShared]
-        let ac = UIActivityViewController(activityItems: items, applicationActivities: nil)
-        present(ac, animated: true)
+        let alert = UIAlertController(title: "Share Content", message: "Please Select an Option", preferredStyle: .actionSheet)
+
+        alert.addAction(UIAlertAction(title: "Original File", style: .default , handler:{ (UIAlertAction) in
+            print("User click Original File button")
+            for data in arr {
+                self.stringToBeShared += "\(data.sharedValue.hexEncodedString())\n"
+            }
+            let items = [self.stringToBeShared]
+            self.stringToBeShared = ""
+            let ac = UIActivityViewController(activityItems: items, applicationActivities: nil)
+            self.present(ac, animated: true)
+        }))
+
+        alert.addAction(UIAlertAction(title: "Unprocessed File", style: .default , handler:{ (UIAlertAction) in
+            print("User click Unprocessed File button")
+            for data in arr {
+                if !(data.sharedValue.starts(with: [0x08])) {
+                    self.stringToBeShared += "\(data.sharedValue.hexEncodedString())\n"
+                }
+            }
+            let items = [self.stringToBeShared]
+            self.stringToBeShared = ""
+            let ac = UIActivityViewController(activityItems: items, applicationActivities: nil)
+            self.present(ac, animated: true)
+        }))
+
+        alert.addAction(UIAlertAction(title: "Processed File", style: .default , handler:{ (UIAlertAction) in
+            print("User click Processed File button")
+            for data in arr {
+                if data.sharedValue.starts(with: [0x08]) {
+                    self.stringToBeShared += "\(data.sharedValue.hexEncodedString())\n"
+                }
+            }
+            let items = [self.stringToBeShared]
+            self.stringToBeShared = ""
+            let ac = UIActivityViewController(activityItems: items, applicationActivities: nil)
+            self.present(ac, animated: true)
+        }))
+
+        alert.addAction(UIAlertAction(title: "Dismiss", style: .cancel, handler:{ (UIAlertAction) in
+            print("User click Dismiss button")
+        }))
+
+        // For iPad Support
+        alert.popoverPresentationController?.sourceView = self.view
+
+        self.present(alert, animated: true, completion: {
+            print("Completion block")
+        })
     }
 
     /// Plots the data when pressed
@@ -94,7 +137,9 @@ class BeaconViewController: UIViewController, CBPeripheralDelegate {
         arr.removeLast()
         var arrData: [String] = []
         for data in arr {
-            arrData.append("\(data.sharedValue.hexEncodedString())")
+            if !(data.sharedValue.starts(with: [0x08])) {
+                arrData.append("\(data.sharedValue.hexEncodedString())")
+            }
         }
         let (sensorDataMultipleMeasurements,_) = decodeData(rawData: arrData)
         UserDefaults.standard.setValue(sensorDataMultipleMeasurements, forKey: "dataArray")
