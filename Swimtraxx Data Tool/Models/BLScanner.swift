@@ -195,7 +195,7 @@ class BLScanner: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
         }
 
         if let charValue = characteristic.value {
-            if charValue.hexEncodedString() == "ffffffffffffffffffffffffffffffff" {
+            if charValue.hexEncodedString() == "ffffffffffffffffffffffffffffffff" { 
                 print("Done.")
                 receivingData.value = false
             } else {

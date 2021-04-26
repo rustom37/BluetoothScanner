@@ -18,7 +18,7 @@
 		AA752E8E225E1E5800F201EC /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA752E8D225E1E5800F201EC /* AppDelegate.swift */; };
 		AA752E90225E1E5800F201EC /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA752E8F225E1E5800F201EC /* ViewController.swift */; };
 		AA752E93225E1E5800F201EC /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA752E91225E1E5800F201EC /* Main.storyboard */; };
-		AA752E96225E1E5800F201EC /* BluetoothScanner.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = AA752E94225E1E5800F201EC /* BluetoothScanner.xcdatamodeld */; };
+		AA752E96225E1E5800F201EC /* Swimtraxx_Data_Tool.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = AA752E94225E1E5800F201EC /* Swimtraxx_Data_Tool.xcdatamodeld */; };
 		AA752E98225E1E5800F201EC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AA752E97225E1E5800F201EC /* Assets.xcassets */; };
 		AA752E9B225E1E5800F201EC /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA752E99225E1E5800F201EC /* LaunchScreen.storyboard */; };
 		AA752EA3225E1EBC00F201EC /* BLScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA752EA2225E1EBC00F201EC /* BLScanner.swift */; };
@@ -51,7 +51,7 @@
 
 /* Begin PBXFileReference section */
 		AA0F808E262069E60023E242 /* ExternalAccessory.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ExternalAccessory.framework; path = System/Library/Frameworks/ExternalAccessory.framework; sourceTree = SDKROOT; };
-		AA0F8090262079BC0023E242 /* BluetoothScanner.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = BluetoothScanner.entitlements; path = ../../../.Trash/BluetoothScanner.entitlements; sourceTree = "<group>"; };
+		AA0F8090262079BC0023E242 /* SwimtraxxDataTool.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = SwimtraxxDataTool.entitlements; path = ../../../.Trash/SwimtraxxDataTool.entitlements; sourceTree = "<group>"; };
 		AA22809025E6AFB20073CEBF /* BeaconViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeaconViewController.swift; sourceTree = "<group>"; };
 		AA37709725F2389300F9D7E3 /* SharedData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedData.swift; sourceTree = "<group>"; };
 		AA3C4AFE2626E5E8003821D1 /* ReadFromLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadFromLog.swift; sourceTree = "<group>"; };
@@ -59,7 +59,7 @@
 		AA3C4B052627316D003821D1 /* PlotMeasurementsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlotMeasurementsViewController.swift; sourceTree = "<group>"; };
 		AA6F9B8E262DAA0E00BBF074 /* Charts.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Charts.framework; path = Carthage/Build/iOS/Charts.framework; sourceTree = "<group>"; };
 		AA6F9B94262DB4FA00BBF074 /* Charts.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = Charts.xcframework; path = Carthage/Build/Charts.xcframework; sourceTree = "<group>"; };
-		AA752E8A225E1E5800F201EC /* BluetoothScanner.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BluetoothScanner.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		AA752E8A225E1E5800F201EC /* Swimtraxx Data Tool.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Swimtraxx Data Tool.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		AA752E8D225E1E5800F201EC /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		AA752E8F225E1E5800F201EC /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		AA752E92225E1E5800F201EC /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -132,8 +132,8 @@
 		AA752E81225E1E5800F201EC = {
 			isa = PBXGroup;
 			children = (
-				AA0F8090262079BC0023E242 /* BluetoothScanner.entitlements */,
-				AA752E8C225E1E5800F201EC /* BluetoothScanner */,
+				AA0F8090262079BC0023E242 /* SwimtraxxDataTool.entitlements */,
+				AA752E8C225E1E5800F201EC /* Swimtraxx Data Tool */,
 				AA752E8B225E1E5800F201EC /* Products */,
 				AAFC0C4725FFBAEC00EEF10D /* Frameworks */,
 			);
@@ -142,12 +142,12 @@
 		AA752E8B225E1E5800F201EC /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				AA752E8A225E1E5800F201EC /* BluetoothScanner.app */,
+				AA752E8A225E1E5800F201EC /* Swimtraxx Data Tool.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		AA752E8C225E1E5800F201EC /* BluetoothScanner */ = {
+		AA752E8C225E1E5800F201EC /* Swimtraxx Data Tool */ = {
 			isa = PBXGroup;
 			children = (
 				AA3C4AFC2626DF54003821D1 /* Helpers */,
@@ -158,9 +158,9 @@
 				AA752E97225E1E5800F201EC /* Assets.xcassets */,
 				AA752E99225E1E5800F201EC /* LaunchScreen.storyboard */,
 				AA752E9C225E1E5800F201EC /* Info.plist */,
-				AA752E94225E1E5800F201EC /* BluetoothScanner.xcdatamodeld */,
+				AA752E94225E1E5800F201EC /* Swimtraxx_Data_Tool.xcdatamodeld */,
 			);
-			path = BluetoothScanner;
+			path = "Swimtraxx Data Tool";
 			sourceTree = "<group>";
 		};
 		AAFC0C4725FFBAEC00EEF10D /* Frameworks */ = {
@@ -179,9 +179,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		AA752E89225E1E5800F201EC /* BluetoothScanner */ = {
+		AA752E89225E1E5800F201EC /* Swimtraxx Data Tool */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = AA752E9F225E1E5800F201EC /* Build configuration list for PBXNativeTarget "BluetoothScanner" */;
+			buildConfigurationList = AA752E9F225E1E5800F201EC /* Build configuration list for PBXNativeTarget "Swimtraxx Data Tool" */;
 			buildPhases = (
 				AA752E86225E1E5800F201EC /* Sources */,
 				AA752E87225E1E5800F201EC /* Frameworks */,
@@ -192,9 +192,9 @@
 			);
 			dependencies = (
 			);
-			name = BluetoothScanner;
+			name = "Swimtraxx Data Tool";
 			productName = BluetoothScanner;
-			productReference = AA752E8A225E1E5800F201EC /* BluetoothScanner.app */;
+			productReference = AA752E8A225E1E5800F201EC /* Swimtraxx Data Tool.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -205,14 +205,14 @@
 			attributes = {
 				LastSwiftUpdateCheck = 1020;
 				LastUpgradeCheck = 1240;
-				ORGANIZATIONNAME = "Steve Rustom";
+				ORGANIZATIONNAME = Capetech;
 				TargetAttributes = {
 					AA752E89225E1E5800F201EC = {
 						CreatedOnToolsVersion = 10.2;
 					};
 				};
 			};
-			buildConfigurationList = AA752E85225E1E5800F201EC /* Build configuration list for PBXProject "BluetoothScanner" */;
+			buildConfigurationList = AA752E85225E1E5800F201EC /* Build configuration list for PBXProject "Swimtraxx Data Tool" */;
 			compatibilityVersion = "Xcode 9.3";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -225,7 +225,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				AA752E89225E1E5800F201EC /* BluetoothScanner */,
+				AA752E89225E1E5800F201EC /* Swimtraxx Data Tool */,
 			);
 		};
 /* End PBXProject section */
@@ -258,7 +258,7 @@
 				AA3C4AFF2626E5E8003821D1 /* ReadFromLog.swift in Sources */,
 				AA3C4B062627316D003821D1 /* PlotMeasurementsViewController.swift in Sources */,
 				AA752EA3225E1EBC00F201EC /* BLScanner.swift in Sources */,
-				AA752E96225E1E5800F201EC /* BluetoothScanner.xcdatamodeld in Sources */,
+				AA752E96225E1E5800F201EC /* Swimtraxx_Data_Tool.xcdatamodeld in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -408,20 +408,21 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_ENTITLEMENTS = BluetoothScanner/BluetoothScanner.entitlements;
+				CODE_SIGN_ENTITLEMENTS = "Swimtraxx Data Tool/SwimtraxxDataTool.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = VB7392NN4K;
+				DEVELOPMENT_TEAM = FT8NMFBPNK;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Carthage/Build/iOS",
 				);
-				INFOPLIST_FILE = BluetoothScanner/Info.plist;
+				INFOPLIST_FILE = "Swimtraxx Data Tool/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 12.2;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.steverustom.BluetoothScanner;
+				MARKETING_VERSION = 1.1;
+				PRODUCT_BUNDLE_IDENTIFIER = com.swimtraxx.datatool;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -432,20 +433,21 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_ENTITLEMENTS = BluetoothScanner/BluetoothScanner.entitlements;
+				CODE_SIGN_ENTITLEMENTS = "Swimtraxx Data Tool/SwimtraxxDataTool.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = VB7392NN4K;
+				DEVELOPMENT_TEAM = FT8NMFBPNK;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Carthage/Build/iOS",
 				);
-				INFOPLIST_FILE = BluetoothScanner/Info.plist;
+				INFOPLIST_FILE = "Swimtraxx Data Tool/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 12.2;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.steverustom.BluetoothScanner;
+				MARKETING_VERSION = 1.1;
+				PRODUCT_BUNDLE_IDENTIFIER = com.swimtraxx.datatool;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -455,7 +457,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		AA752E85225E1E5800F201EC /* Build configuration list for PBXProject "BluetoothScanner" */ = {
+		AA752E85225E1E5800F201EC /* Build configuration list for PBXProject "Swimtraxx Data Tool" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				AA752E9D225E1E5800F201EC /* Debug */,
@@ -464,7 +466,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		AA752E9F225E1E5800F201EC /* Build configuration list for PBXNativeTarget "BluetoothScanner" */ = {
+		AA752E9F225E1E5800F201EC /* Build configuration list for PBXNativeTarget "Swimtraxx Data Tool" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				AA752EA0225E1E5800F201EC /* Debug */,
@@ -476,13 +478,13 @@
 /* End XCConfigurationList section */
 
 /* Begin XCVersionGroup section */
-		AA752E94225E1E5800F201EC /* BluetoothScanner.xcdatamodeld */ = {
+		AA752E94225E1E5800F201EC /* Swimtraxx_Data_Tool.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
 				AA752E95225E1E5800F201EC /* BluetoothScanner.xcdatamodel */,
 			);
 			currentVersion = AA752E95225E1E5800F201EC /* BluetoothScanner.xcdatamodel */;
-			path = BluetoothScanner.xcdatamodeld;
+			path = Swimtraxx_Data_Tool.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;
 		};

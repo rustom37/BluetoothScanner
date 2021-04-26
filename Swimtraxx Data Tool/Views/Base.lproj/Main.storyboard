@@ -29,7 +29,7 @@
         <!--View Controller-->
         <scene sceneID="tne-QT-ifu">
             <objects>
-                <viewController id="BYZ-38-t0r" customClass="ViewController" customModule="BluetoothScanner" sceneMemberID="viewController">
+                <viewController id="BYZ-38-t0r" customClass="ViewController" customModule="Swimtraxx_Data_Tool" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -106,7 +106,7 @@
         <!--Beacon View Controller-->
         <scene sceneID="J0Z-Ub-i8r">
             <objects>
-                <viewController storyboardIdentifier="BeaconViewController" useStoryboardIdentifierAsRestorationIdentifier="YES" id="JND-2o-VjK" customClass="BeaconViewController" customModule="BluetoothScanner" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="BeaconViewController" useStoryboardIdentifierAsRestorationIdentifier="YES" id="JND-2o-VjK" customClass="BeaconViewController" customModule="Swimtraxx_Data_Tool" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="6IJ-5d-uvz">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -171,7 +171,7 @@
         <!--Plot Measurements-->
         <scene sceneID="fwY-L6-g0v">
             <objects>
-                <viewController storyboardIdentifier="PlotMeasurementsViewController" title="Plot Measurements" id="3dr-m9-Pm8" customClass="PlotMeasurementsViewController" customModule="BluetoothScanner" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="PlotMeasurementsViewController" title="Plot Measurements" id="3dr-m9-Pm8" customClass="PlotMeasurementsViewController" customModule="Swimtraxx_Data_Tool" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="Mgb-zZ-8Hm">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="808"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>

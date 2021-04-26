@@ -77,7 +77,6 @@ class BeaconViewController: UIViewController, CBPeripheralDelegate {
     @IBAction func shareButtonPressed(_ sender: Any) {
         var arr = availableScanner.getInformation()
         arr.removeFirst()
-        arr.removeLast()
         let alert = UIAlertController(title: "Share Content", message: "Please Select an Option", preferredStyle: .actionSheet)
 
         alert.addAction(UIAlertAction(title: "Original File", style: .default , handler:{ (UIAlertAction) in
@@ -134,7 +133,6 @@ class BeaconViewController: UIViewController, CBPeripheralDelegate {
     @IBAction func plotButtonPressed(_ sender: Any) {
         var arr = availableScanner.getInformation()
         arr.removeFirst()
-        arr.removeLast()
         var arrData: [String] = []
         for data in arr {
             if !(data.sharedValue.starts(with: [0x08])) {
