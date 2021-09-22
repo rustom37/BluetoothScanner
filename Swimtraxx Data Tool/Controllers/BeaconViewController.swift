@@ -62,6 +62,14 @@ class BeaconViewController: UIViewController, UITableViewDelegate, UITableViewDa
                 return false
             }
         })
+
+        self.tableView.reactive.reloadData <~ BLScanner.shared.changeIsHappening.producer.map { value in
+            if value {
+                self.tableView.reloadData()
+            } else {
+                self.tableView.reloadData()
+            }
+        }
     }
 
     /// When pressed on the retrieve data from flash button, data retrieval from flash begins
@@ -320,7 +328,7 @@ class BeaconViewController: UIViewController, UITableViewDelegate, UITableViewDa
 
         let retrievalKey = BLScanner.shared.getRetrievalStatusKeys()[indexPath.row]
         if let retrievalValue : MutableProperty<Bool> = BLScanner.shared.getRetrievalStatus()[retrievalKey] {
-            cell.reactive.isLoading <~ retrievalValue.producer.map { value in return value ? true : false }
+            cell.dealWithLoadingSpinner(retrievalValue: retrievalValue.value)
         }
 
         return cell

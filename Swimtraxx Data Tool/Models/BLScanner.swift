@@ -25,7 +25,8 @@ class BLScanner: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
     private var connectedPeripherals = [String : CBPeripheral]()
     private var peripheralsInfoToBeShared = [String : [SharedData]]()
     private var retrievingData = [String : MutableProperty<Bool>]()
-    var player: AVAudioPlayer?
+    private var player: AVAudioPlayer?
+    var changeIsHappening = MutableProperty<Bool>(false)
 
     /// BLScanner initialization.
     override init() {
@@ -129,6 +130,7 @@ class BLScanner: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
         if error == nil {
             print("TRUE WRITING")
             retrievingData.updateValue(MutableProperty(true), forKey: peripheral.identifier.uuidString)
+            changeIsHappening.value = true
         }
 
     }
@@ -210,7 +212,7 @@ class BLScanner: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
         }
 
         if let charValue = characteristic.value {
-            if charValue.bytes.containsContinuousValue(value: 255, forMinimumRepeats: 4) {
+            if charValue.bytes.containsContinuousValue(value: 255, forMinimumRepeats: 16) {
                 if !charValue.bytes.allEqual() {
                     print("Peripheral Name: \(peripheral.name ?? "Unknown Device"), value: \(charValue.hexEncodedString())")
                     if peripheralsInfoToBeShared.keys.contains(peripheral.identifier.uuidString) {
@@ -226,6 +228,7 @@ class BLScanner: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
                     }
                     print("\(peripheral.name ?? "Unknown Device") is DONE.")
                     retrievingData.updateValue(MutableProperty(false), forKey: peripheral.identifier.uuidString)
+                    changeIsHappening.value = false
                     peripheral.setNotifyValue(false, for: characteristic)
                     playSound()
                 }
