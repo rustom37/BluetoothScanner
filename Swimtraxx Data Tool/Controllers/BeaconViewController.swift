@@ -12,58 +12,71 @@ import ReactiveCocoa
 import ReactiveSwift
 
 /// View controller that displays  the connected peripheral.
-class BeaconViewController: UIViewController, CBPeripheralDelegate {
+class BeaconViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, ConnectedPeripheralsDelegate {
 
     @IBOutlet weak var shareButton: UIButton!
-    @IBOutlet weak var loadingSpinner: UIActivityIndicatorView!
+    @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var plotButton: UIButton!
 
-    var peripheral: CBPeripheral?
     var stringToBeShared: String =  ""
-    var availableScanner: BLScanner = BLScanner()
-
-    let NUS_UUID: CBUUID = CBUUID(data: Data([0x6E, 0x40, 0x00, 0x01, 0xB5, 0xA3, 0xF3, 0x93, 0xE0, 0xA9, 0xE5, 0x0E, 0x24, 0xDC, 0xCA, 0xBE]))
-    let WRITE_UUID: CBUUID = CBUUID(data: Data([0x6E, 0x40, 0x00, 0x02, 0xB5, 0xA3, 0xF3, 0x93, 0xE0, 0xA9, 0xE5, 0x0E, 0x24, 0xDC, 0xCA, 0xBE]))
+    var pressedUUID: UUID?
+    var isPressedUUIDNil: MutableProperty<Bool> = MutableProperty(true)
 
     /// Loads the view
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
-        peripheral?.delegate  = self
-        loadingSpinner.hidesWhenStopped = true
-        self.title = "\(peripheral?.name ?? "Unknown Device")."
-        self.shareButton.reactive.isEnabled <~ (availableScanner.receivingData.producer.map { value in
-            if (value == false) && (self.availableScanner.getInformation().isEmpty) {
-                return false
-            } else if (value == false) && !(self.availableScanner.getInformation().isEmpty) {
-                return true
+        tableView.delegate = self
+        tableView.dataSource = self
+
+        tableView.register(UINib(nibName: "CustomTableViewCell", bundle: nil),  forCellReuseIdentifier: "customTableViewCell")
+        BLScanner.shared.connectedDelegate = self
+        configureTableView()
+        BLScanner.shared.displayConnectedObjects()
+
+        self.title = "Connected Device(s)"
+
+        self.shareButton.reactive.isEnabled <~ (isPressedUUIDNil.producer.map { value in
+            if let uuid = self.pressedUUID?.uuidString {
+                if (value == false) && (BLScanner.shared.getInformation(uuid: uuid).isEmpty) {
+                    return false
+                } else if (value == false) && !(BLScanner.shared.getInformation(uuid: uuid).isEmpty) {
+                    return true
+                } else {
+                    return false
+                }
             } else {
                 return false
             }
         })
-        self.plotButton.reactive.isEnabled <~ (availableScanner.receivingData.producer.map { value in
-            if (value == false) && (self.availableScanner.getInformation().isEmpty) {
-                return false
-            } else if (value == false) && !(self.availableScanner.getInformation().isEmpty) {
-                return true
+        self.plotButton.reactive.isEnabled <~ (isPressedUUIDNil.producer.map { value in
+            if let uuid = self.pressedUUID?.uuidString {
+                if (value == false) && (BLScanner.shared.getInformation(uuid: uuid).isEmpty) {
+                    return false
+                } else if (value == false) && !(BLScanner.shared.getInformation(uuid: uuid).isEmpty) {
+                    return true
+                } else {
+                    return false
+                }
             } else {
                 return false
             }
         })
-        self.loadingSpinner.reactive.isAnimating <~ (availableScanner.receivingData.producer.map { value in return value ? true : false })
     }
 
     /// When pressed on the retrieve data from flash button, data retrieval from flash begins
     /// - Parameter sender: Any touch on button
     @IBAction func writeDataPressed(_ sender: Any) {
-        if let services = peripheral?.services {
-            for service in services {
-                if service.uuid == NUS_UUID {
-                    if let characteristics = service.characteristics {
-                        for characteristic in characteristics {
-                            if characteristic.uuid == WRITE_UUID && characteristic.properties.contains(.write) {
-                                print("Writing data without response...")
-                                peripheral?.writeValue(Data([0x17]), for: characteristic, type: CBCharacteristicWriteType.withResponse)
+        let peripherals = Array(BLScanner.shared.getConnectedObjects().values)
+
+        DispatchQueue.concurrentPerform(iterations: peripherals.count) { index in
+            if let services = peripherals[index].services {
+                for service in services {
+                    if service.uuid == TransferService.NUS_UUID {
+                        if let characteristics = service.characteristics {
+                            for characteristic in characteristics where (characteristic.uuid == TransferService.WRITE_UUID && characteristic.properties.contains(.write)) {
+                                print("Writing data of \(peripherals[index].identifier.uuidString) with response...")
+                                peripherals[index].writeValue(Data([0x17]), for: characteristic, type: CBCharacteristicWriteType.withResponse)
                             }
                         }
                     }
@@ -75,74 +88,307 @@ class BeaconViewController: UIViewController, CBPeripheralDelegate {
     /// When pressed on the share data button, data gets shared
     /// - Parameter sender: Any touch on button
     @IBAction func shareButtonPressed(_ sender: Any) {
-        var arr = availableScanner.getInformation()
-        arr.removeFirst()
-        let alert = UIAlertController(title: "Share Content", message: "Please Select an Option", preferredStyle: .actionSheet)
+        if let uuid = self.pressedUUID?.uuidString {
+            var arr = BLScanner.shared.getInformation(uuid: uuid)
+            arr.removeFirst()
 
-        alert.addAction(UIAlertAction(title: "Original File", style: .default , handler:{ (UIAlertAction) in
-            print("User click Original File button")
-            for data in arr {
-                self.stringToBeShared += "\(data.sharedValue.hexEncodedString())\n"
+            var alertStyle = UIAlertController.Style.actionSheet
+            if (UIDevice.current.userInterfaceIdiom == .pad) {
+                alertStyle = UIAlertController.Style.alert
             }
-            let items = [self.stringToBeShared]
-            self.stringToBeShared = ""
-            let ac = UIActivityViewController(activityItems: items, applicationActivities: nil)
-            self.present(ac, animated: true)
-        }))
 
-        alert.addAction(UIAlertAction(title: "Unprocessed File", style: .default , handler:{ (UIAlertAction) in
-            print("User click Unprocessed File button")
-            for data in arr {
-                if !(data.sharedValue.starts(with: [0x08])) {
-                    self.stringToBeShared += "\(data.sharedValue.hexEncodedString())\n"
+            let alert = UIAlertController(title: "Share Content", message: "Please Select an Option", preferredStyle: alertStyle)
+
+            alert.addAction(UIAlertAction(title: "Original File", style: .default , handler:{ (UIAlertAction) in
+                print("User click Original File button")
+                var remainder = ""
+
+                for data in arr {
+                    // Split the data equally
+                    var dividedData = self.split(myString: data.sharedValue.hexEncodedString(), by: 32, remainder: remainder)
+
+                    if let firstData = dividedData.first {
+                        dividedData[0] = remainder + firstData // append the remainder to the first of element of the data
+                    }
+
+                    if let lastData = dividedData.last {
+                        // If the data is not split equally
+                        if lastData.length != 32 {
+                            remainder = lastData // Set the remainder as the last element of the divided data
+                            dividedData.removeLast()
+                        } else {
+                            remainder = ""
+                        }
+                    }
+
+                    for divData in dividedData {
+                        if divData != "ffffffffffffffffffffffffffffffff" {
+                            self.stringToBeShared += "\(divData)\n"
+                        }
+                    }
+                }
+                let items = [self.stringToBeShared]
+                self.stringToBeShared = ""
+                let ac = UIActivityViewController(activityItems: items, applicationActivities: nil)
+
+                if UIDevice.current.userInterfaceIdiom == .pad {
+                    ac.popoverPresentationController?.sourceView = self.view
+                    ac.popoverPresentationController?.sourceRect = CGRect(x: self.shareButton.center.x, y: self.shareButton.center.y,width: 0,height: 0)
+                }
+                self.present(ac, animated: true)
+            }))
+
+            alert.addAction(UIAlertAction(title: "Unprocessed File", style: .default , handler:{ (UIAlertAction) in
+                print("User click Unprocessed File button")
+
+                var remainder = ""
+                for data in arr {
+                    // Split the data equally
+                    var dividedData = self.split(myString: data.sharedValue.hexEncodedString(), by: 32, remainder: remainder)
+
+                    if let firstData = dividedData.first {
+                        dividedData[0] = remainder + firstData // append the remainder to the first of element of the data
+                    }
+
+                    if let lastData = dividedData.last {
+                        // If the data is not split equally
+                        if lastData.length != 32 {
+                            remainder = lastData // Set the remainder as the last element of the divided data
+                            dividedData.removeLast()
+                        } else {
+                            remainder = ""
+                        }
+                    }
+
+                    for divData in dividedData where !(divData.starts(with: String(decoding: [0x08], as: UTF8.self))) {
+                        if divData != "ffffffffffffffffffffffffffffffff" {
+                            self.stringToBeShared += "\(divData)\n"
+                        }
+                    }
+                }
+                let items = [self.stringToBeShared]
+                self.stringToBeShared = ""
+                let ac = UIActivityViewController(activityItems: items, applicationActivities: nil)
+
+                if UIDevice.current.userInterfaceIdiom == .pad {
+                    ac.popoverPresentationController?.sourceView = self.view
+                    ac.popoverPresentationController?.sourceRect = CGRect(x: self.shareButton.center.x, y: self.shareButton.center.y,width: 0,height: 0)
+                }
+                self.present(ac, animated: true)
+            }))
+
+            alert.addAction(UIAlertAction(title: "Processed File", style: .default , handler:{ (UIAlertAction) in
+                print("User click Processed File button")
+
+                var remainder = ""
+                for data in arr {
+                    // Split the data equally
+                    var dividedData = self.split(myString: data.sharedValue.hexEncodedString(), by: 32, remainder: remainder)
+
+                    if let firstData = dividedData.first {
+                        dividedData[0] = remainder + firstData // append the remainder to the first of element of the data
+                    }
+
+                    if let lastData = dividedData.last {
+                        // If the data is not split equally
+                        if lastData.length != 32 {
+                            remainder = lastData // Set the remainder as the last element of the divided data
+                            dividedData.removeLast()
+                        } else {
+                            remainder = ""
+                        }
+                    }
+
+                    for divData in dividedData where divData.starts(with: String(decoding: [0x08], as: UTF8.self)) {
+                        if divData != "ffffffffffffffffffffffffffffffff" {
+                            self.stringToBeShared += "\(divData)\n"
+                        }
+                    }
+                }
+                let items = [self.stringToBeShared]
+                self.stringToBeShared = ""
+                let ac = UIActivityViewController(activityItems: items, applicationActivities: nil)
+
+                if UIDevice.current.userInterfaceIdiom == .pad {
+                    ac.popoverPresentationController?.sourceView = self.view
+                    ac.popoverPresentationController?.sourceRect = CGRect(x: self.shareButton.center.x, y: self.shareButton.center.y,width: 0,height: 0)
+                }
+                self.present(ac, animated: true)
+            }))
+
+            alert.addAction(UIAlertAction(title: "Dismiss", style: .cancel, handler:{ (UIAlertAction) in
+                print("User click Dismiss button")
+            }))
+
+            self.present(alert, animated: true, completion: {
+                print("Completion block")
+            })
+        }
+    }
+
+    private func split(myString: String, by length: Int, remainder: String) -> [String] {
+        var startIndex = myString.startIndex
+        var results = [Substring]()
+        if remainder.length == 0 {
+            while startIndex < myString.endIndex {
+                let endIndex = myString.index(startIndex, offsetBy: length, limitedBy: myString.endIndex) ?? myString.endIndex
+                results.append(myString[startIndex..<endIndex])
+                startIndex = endIndex
+            }
+
+            return results.map { String($0) }
+        } else {
+            while startIndex < myString.endIndex {
+                let index: Int = myString.distance(from: myString.startIndex, to: startIndex)
+                if index == 0 {
+                    let endIndex = myString.index(startIndex, offsetBy: (length-remainder.length), limitedBy: myString.endIndex) ?? myString.endIndex
+                    results.append(myString[startIndex..<endIndex])
+                    startIndex = endIndex
+                } else {
+                    let endIndex = myString.index(startIndex, offsetBy: length, limitedBy: myString.endIndex) ?? myString.endIndex
+                    results.append(myString[startIndex..<endIndex])
+                    startIndex = endIndex
                 }
             }
-            let items = [self.stringToBeShared]
-            self.stringToBeShared = ""
-            let ac = UIActivityViewController(activityItems: items, applicationActivities: nil)
-            self.present(ac, animated: true)
-        }))
-
-        alert.addAction(UIAlertAction(title: "Processed File", style: .default , handler:{ (UIAlertAction) in
-            print("User click Processed File button")
-            for data in arr {
-                if data.sharedValue.starts(with: [0x08]) {
-                    self.stringToBeShared += "\(data.sharedValue.hexEncodedString())\n"
-                }
-            }
-            let items = [self.stringToBeShared]
-            self.stringToBeShared = ""
-            let ac = UIActivityViewController(activityItems: items, applicationActivities: nil)
-            self.present(ac, animated: true)
-        }))
-
-        alert.addAction(UIAlertAction(title: "Dismiss", style: .cancel, handler:{ (UIAlertAction) in
-            print("User click Dismiss button")
-        }))
-
-        // For iPad Support
-        alert.popoverPresentationController?.sourceView = self.view
-
-        self.present(alert, animated: true, completion: {
-            print("Completion block")
-        })
+            return results.map { String($0) }
+        }
     }
 
     /// Plots the data when pressed
     /// - Parameter sender: Any touch on button
     @IBAction func plotButtonPressed(_ sender: Any) {
-        var arr = availableScanner.getInformation()
-        arr.removeFirst()
-        var arrData: [String] = []
-        for data in arr {
-            if !(data.sharedValue.starts(with: [0x08])) {
-                arrData.append("\(data.sharedValue.hexEncodedString())")
+        if let uuid = pressedUUID?.uuidString {
+            var arr = BLScanner.shared.getInformation(uuid: uuid)
+            arr.removeFirst()
+            var arrData: [String] = []
+
+            var remainder = ""
+            for data in arr {
+                // Split the data equally
+                var dividedData = self.split(myString: data.sharedValue.hexEncodedString(), by: 32, remainder: remainder)
+
+                if let firstData = dividedData.first {
+                    dividedData[0] = remainder + firstData // append the remainder to the first of element of the data
+                }
+
+                if let lastData = dividedData.last {
+                    // If the data is not split equally
+                    if lastData.length != 32 {
+                        remainder = lastData // Set the remainder as the last element of the divided data
+                        dividedData.removeLast()
+                    } else {
+                        remainder = ""
+                    }
+                }
+
+                for divData in dividedData where !(divData.starts(with: String(decoding: [0x08], as: UTF8.self))) {
+                    arrData.append("\(divData)")
+                }
+            }
+
+            let (sensorDataMultipleMeasurements,_) = decodeData(rawData: arrData)
+            UserDefaults.standard.setValue(sensorDataMultipleMeasurements, forKey: "dataArray")
+
+            let vc: PlotMeasurementsViewController = self.storyboard?.instantiateViewController(withIdentifier: "PlotMeasurementsViewController") as! PlotMeasurementsViewController
+            self.navigationController?.pushViewController(vc, animated: true)
+        }
+    }
+
+    /// Tells the data source to return the number of rows in a given section of a table view.
+    /// - Parameters:
+    ///   - tableView: The table-view object requesting this information.
+    ///   - section: An index number identifying a section in tableView.
+    /// - Returns: The number of rows in section.
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return  BLScanner.shared.getConnectedObjects().count
+    }
+
+    /// Asks the data source for a cell to insert in a particular location of the table view.
+    /// - Parameters:
+    ///   - tableView: A table-view object requesting the cell.
+    ///   - indexPath: An index path locating a row in tableView.
+    /// - Returns: An object inheriting from UITableViewCell that the table view can use for the specified row. UIKit raises an assertion if you return nil.
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "customTableViewCell", for: indexPath) as! CustomTableViewCell
+
+        let currentKey = BLScanner.shared.getConnectedObjectsKeys()[indexPath.row]
+        if let peripheral : CBPeripheral = BLScanner.shared.getConnectedObjects()[currentKey] {
+            cell.peripheralName.text = "Name: \(peripheral.name ?? "Name Unknown")"
+            cell.peripheralName.adjustsFontSizeToFitWidth = true
+            cell.peripheralName.minimumScaleFactor = 0.25
+        }
+
+        let retrievalKey = BLScanner.shared.getRetrievalStatusKeys()[indexPath.row]
+        if let retrievalValue : MutableProperty<Bool> = BLScanner.shared.getRetrievalStatus()[retrievalKey] {
+            cell.reactive.isLoading <~ retrievalValue.producer.map { value in return value ? true : false }
+        }
+
+        return cell
+    }
+
+    /// Tells the delegate a row is selected.
+    /// - Parameters:
+    ///   - tableView: A table view informing the delegate about the new row selection.
+    ///   - indexPath: An index path locating the new selected row in tableView.
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let currentKey = BLScanner.shared.getConnectedObjectsKeys()[indexPath.row]
+        let retrievalKey = BLScanner.shared.getRetrievalStatusKeys()[indexPath.row]
+        if let peripheral : CBPeripheral = BLScanner.shared.getConnectedObjects()[currentKey] {
+            if let retrievalValue : MutableProperty<Bool> = BLScanner.shared.getRetrievalStatus()[retrievalKey] {
+                if retrievalValue.value == false && BLScanner.shared.getAllInformation().keys.contains(peripheral.identifier.uuidString) {
+                    self.title = "Selected Device: \(BLScanner.shared.getConnectedObjects()[peripheral.identifier.uuidString]?.name ?? "Name Unknown")"
+                    pressedUUID = peripheral.identifier
+                    isPressedUUIDNil.value = false
+                } else if retrievalValue.value == false && !BLScanner.shared.getAllInformation().keys.contains(peripheral.identifier.uuidString) {
+                    self.title = "Selected device has not retrieved data yet"
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 2, execute: {
+                        self.title = "Connected Device(s)"
+                    })
+                } else {
+                    self.title = "Selected device is still retrieving data..."
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 2, execute: {
+                        self.title = "Connected Device(s)"
+                    })
+                }
             }
         }
-        let (sensorDataMultipleMeasurements,_) = decodeData(rawData: arrData)
-        UserDefaults.standard.setValue(sensorDataMultipleMeasurements, forKey: "dataArray")
+        tableView.deselectRow(at: indexPath, animated: true)
+    }
 
-        let vc: PlotMeasurementsViewController = self.storyboard?.instantiateViewController(withIdentifier: "PlotMeasurementsViewController") as! PlotMeasurementsViewController
-        self.navigationController?.pushViewController(vc, animated: true)
+    /// Configures the table view
+    func configureTableView() {
+        tableView.rowHeight = UITableView.automaticDimension
+        tableView.estimatedRowHeight = 150.0
+    }
+
+    func didFindObject(object: CBPeripheral) -> Bool {
+        if BLScanner.shared.getConnectedObjects().values.contains(object) {
+            return true
+        } else {
+            return false
+        }
+    }
+
+    func didDisappear(object: CBPeripheral) -> Bool {
+        if !BLScanner.shared.getConnectedObjects().values.contains(object) {
+            return true
+        } else {
+            return false
+        }
+    }
+
+    func update(_ sender: BLScanner) {
+        self.tableView.reloadData()
+    }
+
+    func didFindInfo(_ value: String) {
+        self.showAlert("BL manufacturer info ", body: value)
+    }
+
+    func showAlert (_ title: String, body: String) {
+        let alert = UIAlertController(title: title, message: body, preferredStyle: .alert)
+        let ok = UIAlertAction(title: "Info Alert", style: .cancel, handler: nil)
+        alert.addAction(ok)
+        self.present(alert, animated: true, completion: nil)
     }
 }

@@ -29,5 +29,8 @@ class SharedData {
         self.sharedUUID = sharedUUID
         sharedValue = Data()
     }
-    
+
+    public var description : String {
+        return "SharedData: UUID \(sharedUUID), value: \(sharedValue)"
+    }
 }

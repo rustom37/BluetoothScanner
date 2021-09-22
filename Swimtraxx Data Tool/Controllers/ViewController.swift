@@ -8,26 +8,41 @@
 
 import UIKit
 import CoreBluetooth
+import ReactiveCocoa
+import ReactiveSwift
 
 /// ViewController that contains the tableview of available nearby peripherals.
 class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, BLScannerDelegate {
 
+    @IBOutlet weak var connectButton: UIBarButtonItem!
     @IBOutlet weak var tableView: UITableView!
-    let scanner = BLScanner()
+
+    private var connectedPeripherals: [CBPeripheral] = []
+    private var availablePeripherals: MutableProperty<Bool> = MutableProperty(false)
 
     /// Loads the view
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
+
+        self.connectButton.reactive.isEnabled <~ availablePeripherals.producer.map({ value in
+            if value == true {
+                return true
+            } else {
+                return false
+            }
+        })
+
         tableView.delegate = self
         tableView.dataSource = self
         
-        scanner.startScan()
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "tableViewCell")
+        tableView.allowsMultipleSelection = true
+        tableView.allowsMultipleSelectionDuringEditing = true
         
-        scanner.delegate = self
+        BLScanner.shared.delegate = self
         configureTableView()
-        scanner.displayObjects()
+        BLScanner.shared.displayObjects()
     
     }
 
@@ -37,7 +52,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     ///   - section: An index number identifying a section in tableView.
     /// - Returns: The number of rows in section.
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-            return scanner.getVisibleObjects().count
+        return  BLScanner.shared.getVisibleObjects().count
     }
 
     /// Asks the data source for a cell to insert in a particular location of the table view.
@@ -48,7 +63,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "tableViewCell", for: indexPath)
         
-        cell.textLabel?.text = "Name: \(scanner.getVisibleObjects()[indexPath.row].displayName ?? "Name Unknown")"
+        cell.textLabel?.text = "Name: \(BLScanner.shared.getVisibleObjects()[indexPath.row].displayName ?? "Name Unknown")"
         cell.textLabel?.adjustsFontSizeToFitWidth = true
         cell.textLabel?.minimumScaleFactor = 0.25
         return cell
@@ -59,15 +74,25 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     ///   - tableView: A table view informing the delegate about the new row selection.
     ///   - indexPath: An index path locating the new selected row in tableView.
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        if let  peripheral = scanner.getVisibleObjects()[indexPath.row].peripheral {
-            scanner.centralManager?.connect(peripheral, options: nil)
-            self.title = "Connected to \(scanner.getVisibleObjects()[indexPath.row].displayName ?? "Uknown Device")"
-            tableView.deselectRow(at: indexPath, animated: true)
+        if let peripheral = BLScanner.shared.getVisibleObjects()[indexPath.row].peripheral {
+            print("Tap! \(BLScanner.shared.getVisibleObjects()[indexPath.row].displayName ?? "Name Unknown")")
 
-            let vc: BeaconViewController = self.storyboard?.instantiateViewController(withIdentifier: "BeaconViewController") as! BeaconViewController
-            vc.peripheral = peripheral
-            vc.availableScanner = scanner
-            self.navigationController?.pushViewController(vc, animated: true)
+            if !connectedPeripherals.contains(peripheral) {
+                connectedPeripherals.append(peripheral)
+                availablePeripherals.value = true
+                tableView.cellForRow(at: indexPath)?.accessoryType = .checkmark
+            } else {
+                for (index,elem) in connectedPeripherals.enumerated() where elem.isEqual(peripheral) {
+                    connectedPeripherals.remove(at: index)
+                    if connectedPeripherals.isEmpty {
+                        availablePeripherals.value = false
+                    }
+                }
+                tableView.cellForRow(at: indexPath)?.accessoryType = .none
+            }
+            
+            print("Size of array: \(connectedPeripherals.count)")
+            tableView.deselectRow(at: indexPath, animated: true)
         }
     }
 
@@ -78,7 +103,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     }
 
     func didFindObject(object: BLObject) -> Bool {
-        if scanner.getVisibleObjects().contains(object) {
+        if BLScanner.shared.getVisibleObjects().contains(object) {
             return true
         } else {
             return false
@@ -86,7 +111,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     }
     
     func didDisappear(object: BLObject) -> Bool {
-        if !scanner.getVisibleObjects().contains(object) {
+        if !BLScanner.shared.getVisibleObjects().contains(object) { 
             return true
         } else {
             return false
@@ -103,9 +128,17 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     
     func showAlert (_ title: String, body: String) {
         let alert = UIAlertController(title: title, message: body, preferredStyle: .alert)
-        let ok = UIAlertAction(title: "OK", style: .cancel, handler: nil)
+        let ok = UIAlertAction(title: "Info Alert", style: .cancel, handler: nil)
         alert.addAction(ok)
         self.present(alert, animated: true, completion: nil)
+    }
+    
+    @IBAction func connectButtonPressed(_ sender: Any) {
+        for peripheral in self.connectedPeripherals {
+            BLScanner.shared.centralManager?.connect(peripheral, options: nil)
+        }
+        let vc: BeaconViewController = self.storyboard?.instantiateViewController(withIdentifier: "BeaconViewController") as! BeaconViewController
+        self.navigationController?.pushViewController(vc, animated: true)
     }
 }
 

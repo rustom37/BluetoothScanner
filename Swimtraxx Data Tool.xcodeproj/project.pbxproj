@@ -7,12 +7,15 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		AA09C8AD26398DEB006E6322 /* Algorithms in Frameworks */ = {isa = PBXBuildFile; productRef = AA09C8AC26398DEB006E6322 /* Algorithms */; };
 		AA0F808F262069E60023E242 /* ExternalAccessory.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA0F808E262069E60023E242 /* ExternalAccessory.framework */; };
+		AA10818726E8AF17000E240D /* TransferService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA10818626E8AF17000E240D /* TransferService.swift */; };
 		AA22809125E6AFB20073CEBF /* BeaconViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA22809025E6AFB20073CEBF /* BeaconViewController.swift */; };
 		AA37709825F2389300F9D7E3 /* SharedData.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA37709725F2389300F9D7E3 /* SharedData.swift */; };
 		AA3C4AFF2626E5E8003821D1 /* ReadFromLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA3C4AFE2626E5E8003821D1 /* ReadFromLog.swift */; };
 		AA3C4B0126271320003821D1 /* BinUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA3C4B0026271320003821D1 /* BinUtils.swift */; };
 		AA3C4B062627316D003821D1 /* PlotMeasurementsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA3C4B052627316D003821D1 /* PlotMeasurementsViewController.swift */; };
+		AA5AB46626F8DB3900328AA8 /* splash.wav in Resources */ = {isa = PBXBuildFile; fileRef = AA5AB46526F8DB3900328AA8 /* splash.wav */; };
 		AA6F9B95262DB4FA00BBF074 /* Charts.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA6F9B94262DB4FA00BBF074 /* Charts.xcframework */; };
 		AA6F9B96262DB4FA00BBF074 /* Charts.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = AA6F9B94262DB4FA00BBF074 /* Charts.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		AA752E8E225E1E5800F201EC /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA752E8D225E1E5800F201EC /* AppDelegate.swift */; };
@@ -24,6 +27,9 @@
 		AA752EA3225E1EBC00F201EC /* BLScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA752EA2225E1EBC00F201EC /* BLScanner.swift */; };
 		AA752EA7225E204700F201EC /* BLObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA752EA6225E204700F201EC /* BLObject.swift */; };
 		AA752EA9225E243F00F201EC /* BLScannerDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA752EA8225E243F00F201EC /* BLScannerDelegate.swift */; };
+		AA9B4A2A26E6329700E7CA4A /* ConnectedPeripheralsDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA9B4A2926E6329700E7CA4A /* ConnectedPeripheralsDelegate.swift */; };
+		AAF3EBAE26AEB7D3001DE327 /* CustomTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = AAF3EBAD26AEB7D3001DE327 /* CustomTableViewCell.xib */; };
+		AAF3EBB026AEB8A0001DE327 /* CustomTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAF3EBAF26AEB8A0001DE327 /* CustomTableViewCell.swift */; };
 		AAFC0C4925FFBAEC00EEF10D /* ReactiveCocoa.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = AAFC0C4825FFBAEC00EEF10D /* ReactiveCocoa.xcframework */; };
 		AAFC0C4A25FFBAEC00EEF10D /* ReactiveCocoa.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = AAFC0C4825FFBAEC00EEF10D /* ReactiveCocoa.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		AAFC0C4D25FFBAEF00EEF10D /* ReactiveSwift.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = AAFC0C4C25FFBAEF00EEF10D /* ReactiveSwift.xcframework */; };
@@ -52,11 +58,13 @@
 /* Begin PBXFileReference section */
 		AA0F808E262069E60023E242 /* ExternalAccessory.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ExternalAccessory.framework; path = System/Library/Frameworks/ExternalAccessory.framework; sourceTree = SDKROOT; };
 		AA0F8090262079BC0023E242 /* SwimtraxxDataTool.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = SwimtraxxDataTool.entitlements; path = ../../../.Trash/SwimtraxxDataTool.entitlements; sourceTree = "<group>"; };
+		AA10818626E8AF17000E240D /* TransferService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferService.swift; sourceTree = "<group>"; };
 		AA22809025E6AFB20073CEBF /* BeaconViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeaconViewController.swift; sourceTree = "<group>"; };
 		AA37709725F2389300F9D7E3 /* SharedData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedData.swift; sourceTree = "<group>"; };
 		AA3C4AFE2626E5E8003821D1 /* ReadFromLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadFromLog.swift; sourceTree = "<group>"; };
 		AA3C4B0026271320003821D1 /* BinUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BinUtils.swift; sourceTree = "<group>"; };
 		AA3C4B052627316D003821D1 /* PlotMeasurementsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlotMeasurementsViewController.swift; sourceTree = "<group>"; };
+		AA5AB46526F8DB3900328AA8 /* splash.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = splash.wav; sourceTree = "<group>"; };
 		AA6F9B8E262DAA0E00BBF074 /* Charts.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Charts.framework; path = Carthage/Build/iOS/Charts.framework; sourceTree = "<group>"; };
 		AA6F9B94262DB4FA00BBF074 /* Charts.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = Charts.xcframework; path = Carthage/Build/Charts.xcframework; sourceTree = "<group>"; };
 		AA752E8A225E1E5800F201EC /* Swimtraxx Data Tool.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Swimtraxx Data Tool.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -70,6 +78,9 @@
 		AA752EA2225E1EBC00F201EC /* BLScanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BLScanner.swift; sourceTree = "<group>"; };
 		AA752EA6225E204700F201EC /* BLObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BLObject.swift; sourceTree = "<group>"; };
 		AA752EA8225E243F00F201EC /* BLScannerDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BLScannerDelegate.swift; sourceTree = "<group>"; };
+		AA9B4A2926E6329700E7CA4A /* ConnectedPeripheralsDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectedPeripheralsDelegate.swift; sourceTree = "<group>"; };
+		AAF3EBAD26AEB7D3001DE327 /* CustomTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = CustomTableViewCell.xib; sourceTree = "<group>"; };
+		AAF3EBAF26AEB8A0001DE327 /* CustomTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTableViewCell.swift; sourceTree = "<group>"; };
 		AAFC0C4825FFBAEC00EEF10D /* ReactiveCocoa.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = ReactiveCocoa.xcframework; path = Carthage/Build/ReactiveCocoa.xcframework; sourceTree = "<group>"; };
 		AAFC0C4C25FFBAEF00EEF10D /* ReactiveSwift.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = ReactiveSwift.xcframework; path = Carthage/Build/ReactiveSwift.xcframework; sourceTree = "<group>"; };
 		AAFC0C4F25FFBAF400EEF10D /* ReactiveMapKit.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = ReactiveMapKit.xcframework; path = Carthage/Build/ReactiveMapKit.xcframework; sourceTree = "<group>"; };
@@ -80,6 +91,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AA09C8AD26398DEB006E6322 /* Algorithms in Frameworks */,
 				AAFC0C5025FFBAF400EEF10D /* ReactiveMapKit.xcframework in Frameworks */,
 				AAFC0C4D25FFBAEF00EEF10D /* ReactiveSwift.xcframework in Frameworks */,
 				AA6F9B95262DB4FA00BBF074 /* Charts.xcframework in Frameworks */,
@@ -116,6 +128,7 @@
 				AA752EA8225E243F00F201EC /* BLScannerDelegate.swift */,
 				AA752EA2225E1EBC00F201EC /* BLScanner.swift */,
 				AA37709725F2389300F9D7E3 /* SharedData.swift */,
+				AA9B4A2926E6329700E7CA4A /* ConnectedPeripheralsDelegate.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -123,10 +136,19 @@
 		AA3C4AFC2626DF54003821D1 /* Helpers */ = {
 			isa = PBXGroup;
 			children = (
+				AA10818626E8AF17000E240D /* TransferService.swift */,
 				AA3C4AFE2626E5E8003821D1 /* ReadFromLog.swift */,
 				AA3C4B0026271320003821D1 /* BinUtils.swift */,
 			);
 			path = Helpers;
+			sourceTree = "<group>";
+		};
+		AA5AB46426F8DB3900328AA8 /* Sound Effects */ = {
+			isa = PBXGroup;
+			children = (
+				AA5AB46526F8DB3900328AA8 /* splash.wav */,
+			);
+			path = "Sound Effects";
 			sourceTree = "<group>";
 		};
 		AA752E81225E1E5800F201EC = {
@@ -150,6 +172,8 @@
 		AA752E8C225E1E5800F201EC /* Swimtraxx Data Tool */ = {
 			isa = PBXGroup;
 			children = (
+				AA5AB46426F8DB3900328AA8 /* Sound Effects */,
+				AAF3EBAC26AEB785001DE327 /* Custom Cells */,
 				AA3C4AFC2626DF54003821D1 /* Helpers */,
 				AA22808225E6A96C0073CEBF /* Models */,
 				AA22808125E6A94D0073CEBF /* Controllers */,
@@ -161,6 +185,15 @@
 				AA752E94225E1E5800F201EC /* Swimtraxx_Data_Tool.xcdatamodeld */,
 			);
 			path = "Swimtraxx Data Tool";
+			sourceTree = "<group>";
+		};
+		AAF3EBAC26AEB785001DE327 /* Custom Cells */ = {
+			isa = PBXGroup;
+			children = (
+				AAF3EBAD26AEB7D3001DE327 /* CustomTableViewCell.xib */,
+				AAF3EBAF26AEB8A0001DE327 /* CustomTableViewCell.swift */,
+			);
+			path = "Custom Cells";
 			sourceTree = "<group>";
 		};
 		AAFC0C4725FFBAEC00EEF10D /* Frameworks */ = {
@@ -193,6 +226,9 @@
 			dependencies = (
 			);
 			name = "Swimtraxx Data Tool";
+			packageProductDependencies = (
+				AA09C8AC26398DEB006E6322 /* Algorithms */,
+			);
 			productName = BluetoothScanner;
 			productReference = AA752E8A225E1E5800F201EC /* Swimtraxx Data Tool.app */;
 			productType = "com.apple.product-type.application";
@@ -221,6 +257,9 @@
 				Base,
 			);
 			mainGroup = AA752E81225E1E5800F201EC;
+			packageReferences = (
+				AA09C8AB26398DEB006E6322 /* XCRemoteSwiftPackageReference "swift-algorithms" */,
+			);
 			productRefGroup = AA752E8B225E1E5800F201EC /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -237,7 +276,9 @@
 			files = (
 				AA752E9B225E1E5800F201EC /* LaunchScreen.storyboard in Resources */,
 				AA752E98225E1E5800F201EC /* Assets.xcassets in Resources */,
+				AAF3EBAE26AEB7D3001DE327 /* CustomTableViewCell.xib in Resources */,
 				AA752E93225E1E5800F201EC /* Main.storyboard in Resources */,
+				AA5AB46626F8DB3900328AA8 /* splash.wav in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -254,11 +295,14 @@
 				AA752E8E225E1E5800F201EC /* AppDelegate.swift in Sources */,
 				AA752EA7225E204700F201EC /* BLObject.swift in Sources */,
 				AA22809125E6AFB20073CEBF /* BeaconViewController.swift in Sources */,
+				AA10818726E8AF17000E240D /* TransferService.swift in Sources */,
+				AA9B4A2A26E6329700E7CA4A /* ConnectedPeripheralsDelegate.swift in Sources */,
 				AA752EA9225E243F00F201EC /* BLScannerDelegate.swift in Sources */,
 				AA3C4AFF2626E5E8003821D1 /* ReadFromLog.swift in Sources */,
 				AA3C4B062627316D003821D1 /* PlotMeasurementsViewController.swift in Sources */,
 				AA752EA3225E1EBC00F201EC /* BLScanner.swift in Sources */,
 				AA752E96225E1E5800F201EC /* Swimtraxx_Data_Tool.xcdatamodeld in Sources */,
+				AAF3EBB026AEB8A0001DE327 /* CustomTableViewCell.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -411,6 +455,7 @@
 				CODE_SIGN_ENTITLEMENTS = "Swimtraxx Data Tool/SwimtraxxDataTool.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = FT8NMFBPNK;
+				ENABLE_BITCODE = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Carthage/Build/iOS",
@@ -436,6 +481,7 @@
 				CODE_SIGN_ENTITLEMENTS = "Swimtraxx Data Tool/SwimtraxxDataTool.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = FT8NMFBPNK;
+				ENABLE_BITCODE = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Carthage/Build/iOS",
@@ -476,6 +522,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		AA09C8AB26398DEB006E6322 /* XCRemoteSwiftPackageReference "swift-algorithms" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-algorithms";
+			requirement = {
+				kind = exactVersion;
+				version = 0.1.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		AA09C8AC26398DEB006E6322 /* Algorithms */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AA09C8AB26398DEB006E6322 /* XCRemoteSwiftPackageReference "swift-algorithms" */;
+			productName = Algorithms;
+		};
+/* End XCSwiftPackageProductDependency section */
 
 /* Begin XCVersionGroup section */
 		AA752E94225E1E5800F201EC /* Swimtraxx_Data_Tool.xcdatamodeld */ = {

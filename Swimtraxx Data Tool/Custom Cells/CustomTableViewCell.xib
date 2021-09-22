@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="18122" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="18093"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="customTableViewCell" rowHeight="112" id="eTk-UI-F8z" customClass="CustomTableViewCell" customModule="Swimtraxx_Data_Tool" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="475" height="112"/>
+            <autoresizingMask key="autoresizingMask"/>
+            <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="eTk-UI-F8z" id="xm5-BN-u6Q">
+                <rect key="frame" x="0.0" y="0.0" width="475" height="112"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="J8v-ee-uFC">
+                        <rect key="frame" x="20" y="46" width="0.0" height="21"/>
+                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                        <nil key="textColor"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="medium" translatesAutoresizingMaskIntoConstraints="NO" id="1yY-BF-tiq">
+                        <rect key="frame" x="435" y="46" width="20" height="21"/>
+                    </activityIndicatorView>
+                </subviews>
+                <constraints>
+                    <constraint firstItem="J8v-ee-uFC" firstAttribute="top" secondItem="xm5-BN-u6Q" secondAttribute="top" constant="46" id="9CK-L0-hHW"/>
+                    <constraint firstItem="J8v-ee-uFC" firstAttribute="leading" secondItem="xm5-BN-u6Q" secondAttribute="leading" constant="20" symbolic="YES" id="K1H-ue-0xt"/>
+                    <constraint firstItem="1yY-BF-tiq" firstAttribute="top" secondItem="xm5-BN-u6Q" secondAttribute="top" constant="46" id="ZyI-vV-bDG"/>
+                    <constraint firstAttribute="bottom" secondItem="J8v-ee-uFC" secondAttribute="bottom" constant="45" id="oez-Gc-Fxi"/>
+                    <constraint firstAttribute="bottom" secondItem="1yY-BF-tiq" secondAttribute="bottom" constant="45" id="tVx-1m-yZQ"/>
+                    <constraint firstAttribute="trailing" secondItem="1yY-BF-tiq" secondAttribute="trailing" constant="20" symbolic="YES" id="ur8-ex-4Ep"/>
+                </constraints>
+            </tableViewCellContentView>
+            <connections>
+                <outlet property="loadingSpinner" destination="1yY-BF-tiq" id="wWR-fu-GjS"/>
+                <outlet property="peripheralName" destination="J8v-ee-uFC" id="2Xn-G1-fVl"/>
+            </connections>
+            <point key="canvasLocation" x="290.57971014492756" y="77.678571428571431"/>
+        </tableViewCell>
+    </objects>
+</document>

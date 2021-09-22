@@ -11,16 +11,21 @@ import UIKit
 import CoreBluetooth
 import ReactiveCocoa
 import ReactiveSwift
+import AVFoundation
 
 /// BLScanner class
 class BLScanner: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
+
+    static let shared = BLScanner()
     
     var centralManager : CBCentralManager?
     private var peripherals: [BLObject] = []
     var delegate : BLScannerDelegate?
-    var connectedPeripheral : CBPeripheral?
-    private var informationToBeShared: [SharedData] = []
-    var receivingData : MutableProperty<Bool> = MutableProperty(false)
+    var connectedDelegate : ConnectedPeripheralsDelegate?
+    private var connectedPeripherals = [String : CBPeripheral]()
+    private var peripheralsInfoToBeShared = [String : [SharedData]]()
+    private var retrievingData = [String : MutableProperty<Bool>]()
+    var player: AVAudioPlayer?
 
     /// BLScanner initialization.
     override init() {
@@ -42,10 +47,10 @@ class BLScanner: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
             print("Central state is unauthorized.")
         case .poweredOff:
             print("Central state is powered off.")
-            centralManager?.stopScan()
+            stopScan()
         case .poweredOn:
             print("Central state is powered on.")
-            centralManager?.scanForPeripherals(withServices: nil, options: [CBCentralManagerScanOptionAllowDuplicatesKey: false])
+            startScan()
         @unknown default:
             fatalError()
         }
@@ -95,9 +100,13 @@ class BLScanner: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
     
         print("Connected to \(peripheral.name ?? "Uknown Device")")
         centralManager?.stopScan()
-        connectedPeripheral = peripheral
-        connectedPeripheral?.delegate = self
-        connectedPeripheral?.discoverServices(nil)
+        connectedPeripherals[peripheral.identifier.uuidString] = peripheral
+        retrievingData[peripheral.identifier.uuidString] = MutableProperty(false)
+        if let connectedPeripheral = connectedPeripherals[peripheral.identifier.uuidString] {
+            connectedPeripheral.delegate = self
+            connectedPeripheral.discoverServices(nil)
+        }
+        updateConnectedObjects()
     }
 
     /// Tells the delegate the central manager failed to create a connection with a peripheral.
@@ -119,7 +128,7 @@ class BLScanner: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
     func peripheral(_ peripheral:CBPeripheral, didWriteValueFor characteristic: CBCharacteristic, error: Error?) {
         if error == nil {
             print("TRUE WRITING")
-            receivingData.value = true
+            retrievingData.updateValue(MutableProperty(true), forKey: peripheral.identifier.uuidString)
         }
 
     }
@@ -130,10 +139,23 @@ class BLScanner: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
     ///   - characteristic: The characteristic for which to configure value notifications.
     ///   - error: The reason the call failed, or nil if no error occurred.
     func peripheral(_ peripheral: CBPeripheral, didUpdateNotificationStateFor characteristic: CBCharacteristic, error: Error?) {
-            if error == nil {
-                print("TRUE")
-            }
+        if let error = error {
+            print("Error changing notification state: \(error.localizedDescription)")
+            return
         }
+
+        // Exit if it's not the transfer characteristic
+        guard characteristic.uuid == TransferService.WRITE_UUID else { return }
+
+        if characteristic.isNotifying {
+            // Notification has started
+            print("Notification began on \(characteristic)")
+        } else {
+            // Notification has stopped, so disconnect from the peripheral
+            print("Notification stopped on \(characteristic). Disconnecting")
+            cleanup(connectedPeripheral: peripheral)
+        }
+    }
 
     /// Tells the delegate that peripheral service discovery succeeded.
     /// - Parameters:
@@ -141,7 +163,7 @@ class BLScanner: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
     ///   - error: The reason the call failed, or nil if no error occurred.
     func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
         if let errorService = error {
-            print("Error: \(errorService)")
+            print("Error discovering services: \(errorService)")
             return
         }
         
@@ -159,25 +181,17 @@ class BLScanner: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
     ///   - error: The reason the call failed, or nil if no error occurred.
     func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
         if let errorCharacteristics = error {
-            print("Error: \(errorCharacteristics)")
+            print("Error discovering characteristics: \(errorCharacteristics)")
             return
         }
         
-             if let characteristics = service.characteristics {
+        if let characteristics = service.characteristics {
             for characteristic in characteristics {
-                if characteristic.properties.contains(.read) {
-                  print("\(characteristic.uuid): properties contains .read")
-                }
-                if characteristic.properties.contains(.notify) {
-                  print("\(characteristic.uuid): properties contains .notify")
-                  print("Receiving Data...")
-                  peripheral.setNotifyValue(true, for: characteristic)
-                }
-                if characteristic.properties.contains(.write) {
+                if characteristic.uuid == TransferService.NOTIFY_UUID {
+                    print("\(characteristic.uuid): properties contains .notify")
+                    peripheral.setNotifyValue(true, for: characteristic)
+                } else if characteristic.uuid == TransferService.WRITE_UUID {
                     print("\(characteristic.uuid): properties contains .write")
-                }
-                if characteristic.properties.contains(.writeWithoutResponse) {
-                    print("\(characteristic.uuid): properties contains .writeWithoutResponse")
                 }
             }
         }
@@ -190,36 +204,123 @@ class BLScanner: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
     ///   - error: The reason the call failed, or nil if no error occurred.
     func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
         if let errorCharacteristic = error {
-            print("Error: \(errorCharacteristic)")
+            print("Error updating value: \(errorCharacteristic)")
+            cleanup(connectedPeripheral: peripheral)
             return
         }
 
         if let charValue = characteristic.value {
-            if charValue.hexEncodedString() == "ffffffffffffffffffffffffffffffff" { 
-                print("Done.")
-                receivingData.value = false
+            if charValue.bytes.containsContinuousValue(value: 255, forMinimumRepeats: 4) {
+                if !charValue.bytes.allEqual() {
+                    print("Peripheral Name: \(peripheral.name ?? "Unknown Device"), value: \(charValue.hexEncodedString())")
+                    if peripheralsInfoToBeShared.keys.contains(peripheral.identifier.uuidString) {
+                        if var tempList = peripheralsInfoToBeShared[peripheral.identifier.uuidString] {
+                            tempList.append(SharedData(sharedUUID: characteristic.uuid, sharedValue: charValue))
+                            peripheralsInfoToBeShared.updateValue(tempList, forKey: peripheral.identifier.uuidString)
+                        }
+                    } else {
+                        var informationToBeShared: [SharedData] = []
+                        informationToBeShared.append(SharedData(sharedUUID: characteristic.uuid, sharedValue: charValue))
+                        peripheralsInfoToBeShared[peripheral.identifier.uuidString] = informationToBeShared
+                        print("creating new list")
+                    }
+                    print("\(peripheral.name ?? "Unknown Device") is DONE.")
+                    retrievingData.updateValue(MutableProperty(false), forKey: peripheral.identifier.uuidString)
+                    peripheral.setNotifyValue(false, for: characteristic)
+                    playSound()
+                }
             } else {
-                print("Characteristic UUID: \(characteristic.uuid), value: \(charValue.hexEncodedString())")
-                informationToBeShared.append(SharedData(sharedUUID: characteristic.uuid, sharedValue: charValue))
+                print("Peripheral Name: \(peripheral.name ?? "Unknown Device"), value: \(charValue.hexEncodedString())")
+                if peripheralsInfoToBeShared.keys.contains(peripheral.identifier.uuidString) {
+                    if var tempList = peripheralsInfoToBeShared[peripheral.identifier.uuidString] {
+                        tempList.append(SharedData(sharedUUID: characteristic.uuid, sharedValue: charValue))
+                        peripheralsInfoToBeShared.updateValue(tempList, forKey: peripheral.identifier.uuidString)
+                    }
+                } else {
+                    var informationToBeShared: [SharedData] = []
+                    informationToBeShared.append(SharedData(sharedUUID: characteristic.uuid, sharedValue: charValue))
+                    peripheralsInfoToBeShared[peripheral.identifier.uuidString] = informationToBeShared
+                    print("creating new list")
+                }
             }
         }
     }
 
+    /// Call this when things either go wrong, or you're done with the connection.
+    /// This cancels any subscriptions if there are any, or straight disconnects if not.
+    /// (didUpdateNotificationStateForCharacteristic will cancel the connection if a subscription is involved)
+    /// - Parameter peripheral: The peripheral providing this information.
+    private func cleanup(connectedPeripheral: CBPeripheral) {
+        // Don't do anything if we're not connected
+        if  !(connectedPeripheral.state == .connected) {
+            return
+        }
+
+        for service in (connectedPeripheral.services ?? [] as [CBService]) {
+            for characteristic in (service.characteristics ?? [] as [CBCharacteristic]) where (characteristic.uuid == TransferService.WRITE_UUID && characteristic.isNotifying) {
+                    // It is notifying, so unsubscribe
+                    connectedPeripheral.setNotifyValue(false, for: characteristic)
+            }
+        }
+
+        // If we've gotten this far, we're connected, but we're not subscribed, so we just disconnect
+        centralManager?.cancelPeripheralConnection(connectedPeripheral)
+    }
+
     /// Retrieves the information that needs to be shared.
     /// - Returns: List of shared data from the flash of the peripheral
-    func getInformation() -> [SharedData] {
-        return informationToBeShared
+    func getInformation(uuid: String) -> [SharedData] {
+        return peripheralsInfoToBeShared[uuid] ?? []
+    }
+
+    func getAllInformation() -> [String : [SharedData]] {
+        return peripheralsInfoToBeShared
+    }
+
+    func areAllInfoEmpty() -> Bool {
+        for (_,list) in peripheralsInfoToBeShared {
+            if !list.isEmpty {
+                return false
+            }
+        }
+        return true
     }
 
     /// Deletes all the data in the list of shared flash data.
-    func deleteInformation() {
-        informationToBeShared.removeAll()
+    func deleteInformation(uuid: String) {
+        peripheralsInfoToBeShared[uuid]?.removeAll()
+    }
+
+    func deleteAllInformation() {
+        for var (_, list) in peripheralsInfoToBeShared {
+            list.removeAll()
+        }
     }
 
     /// Retrieves all the visible BLObjects in range.
     /// - Returns: List of BLObjects in range
     func getVisibleObjects() -> [BLObject] {
         return peripherals
+    }
+
+    /// Retrieves all the connected CBPeripherals.
+    /// - Returns: Dictionary of connected CBPeripherals
+    func getConnectedObjects() -> [String : CBPeripheral] {
+        return connectedPeripherals
+    }
+
+    func getConnectedObjectsKeys() -> [String] {
+        return Array(connectedPeripherals.keys)
+    }
+
+    /// Retrieves all the retrieval statuses of connected peripherals
+    /// - Returns: Dictionary of retrieval statuses
+    func getRetrievalStatus() -> [String : MutableProperty<Bool>] {
+        return retrievingData
+    }
+
+    func getRetrievalStatusKeys() -> [String] {
+        return Array(retrievingData.keys)
     }
 
     /// Displays the available BLObjects
@@ -231,9 +332,39 @@ class BLScanner: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
         }
     }
 
+    /// Displays the connected BLObjects
+    func displayConnectedObjects() {
+        DispatchQueue.global(qos: .userInitiated).async {
+            DispatchQueue.main.async {
+                self.updateConnectedObjects()
+            }
+        }
+    }
+
     /// Updates the delegate
     func updateObjects() {
         delegate?.update(self)
+    }
+
+    /// Updates the connectedDelegate
+    func updateConnectedObjects() {
+        connectedDelegate?.update(self)
+    }
+
+    func playSound() {
+        guard let url = Bundle.main.url(forResource: "splash", withExtension: "wav") else { return }
+        do {
+            try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
+            try AVAudioSession.sharedInstance().setActive(true)
+
+            /* The following line is required for the player to work on iOS 11. Change the file type accordingly*/
+            player = try AVAudioPlayer(contentsOf: url, fileTypeHint: AVFileType.wav.rawValue)
+            guard let player = player else { return }
+            player.play()
+
+        } catch let error {
+            print(error.localizedDescription)
+        }
     }
 }
 
@@ -250,5 +381,36 @@ extension Data {
     func hexEncodedString(options: HexEncodingOptions = []) -> String {
         let format = options.contains(.upperCase) ? "%02hhX" : "%02hhx"
         return self.map { String(format: format, $0) }.joined()
+    }
+}
+
+///  Groups successive elements in tuples (value, numberOfSuccessions)
+extension Sequence where Iterator.Element: Equatable {
+    func group() -> [(Iterator.Element, Int)] {
+        var res: [(Iterator.Element, Int)] = []
+        for el in self {
+            if res.last?.0 == el {
+                res[res.endIndex-1].1 += 1
+            } else {
+                res.append((el,1))
+            }
+        }
+        return res
+    }
+}
+
+extension Sequence where Iterator.Element == UInt8 {
+    func containsContinuousValue(value: UInt8, forMinimumRepeats rep: Int) -> Bool {
+        return self.group().contains{ (val, count) in count >= rep && val == value }
+    }
+}
+
+/// Check if all elements of an array have the same value
+extension Array where Element : Equatable {
+    func allEqual() -> Bool {
+        if let firstElem = first {
+            return !dropFirst().contains { $0 != firstElem }
+        }
+        return true
     }
 }
