@@ -97,8 +97,7 @@ class BeaconViewController: UIViewController, UITableViewDelegate, UITableViewDa
     /// - Parameter sender: Any touch on button
     @IBAction func shareButtonPressed(_ sender: Any) {
         if let uuid = self.pressedUUID?.uuidString {
-            var arr = BLScanner.shared.getInformation(uuid: uuid)
-            arr.removeFirst()
+            let arr = BLScanner.shared.getInformation(uuid: uuid)
 
             var alertStyle = UIAlertController.Style.actionSheet
             if (UIDevice.current.userInterfaceIdiom == .pad) {
@@ -109,31 +108,9 @@ class BeaconViewController: UIViewController, UITableViewDelegate, UITableViewDa
 
             alert.addAction(UIAlertAction(title: "Original File", style: .default , handler:{ (UIAlertAction) in
                 print("User click Original File button")
-                var remainder = ""
 
                 for data in arr {
-                    // Split the data equally
-                    var dividedData = self.split(myString: data.sharedValue.hexEncodedString(), by: 32, remainder: remainder)
-
-                    if let firstData = dividedData.first {
-                        dividedData[0] = remainder + firstData // append the remainder to the first of element of the data
-                    }
-
-                    if let lastData = dividedData.last {
-                        // If the data is not split equally
-                        if lastData.length != 32 {
-                            remainder = lastData // Set the remainder as the last element of the divided data
-                            dividedData.removeLast()
-                        } else {
-                            remainder = ""
-                        }
-                    }
-
-                    for divData in dividedData {
-                        if divData != "ffffffffffffffffffffffffffffffff" {
-                            self.stringToBeShared += "\(divData)\n"
-                        }
-                    }
+                    self.stringToBeShared += "\(data)\n"
                 }
                 let items = [self.stringToBeShared]
                 self.stringToBeShared = ""
@@ -149,31 +126,10 @@ class BeaconViewController: UIViewController, UITableViewDelegate, UITableViewDa
             alert.addAction(UIAlertAction(title: "Unprocessed File", style: .default , handler:{ (UIAlertAction) in
                 print("User click Unprocessed File button")
 
-                var remainder = ""
-                for data in arr {
-                    // Split the data equally
-                    var dividedData = self.split(myString: data.sharedValue.hexEncodedString(), by: 32, remainder: remainder)
-
-                    if let firstData = dividedData.first {
-                        dividedData[0] = remainder + firstData // append the remainder to the first of element of the data
-                    }
-
-                    if let lastData = dividedData.last {
-                        // If the data is not split equally
-                        if lastData.length != 32 {
-                            remainder = lastData // Set the remainder as the last element of the divided data
-                            dividedData.removeLast()
-                        } else {
-                            remainder = ""
-                        }
-                    }
-
-                    for divData in dividedData where !(divData.starts(with: String(decoding: [0x08], as: UTF8.self))) {
-                        if divData != "ffffffffffffffffffffffffffffffff" {
-                            self.stringToBeShared += "\(divData)\n"
-                        }
-                    }
+                for data in arr where !(data.starts(with: String(decoding: [0x08], as: UTF8.self))) {
+                    self.stringToBeShared += "\(data)\n"
                 }
+
                 let items = [self.stringToBeShared]
                 self.stringToBeShared = ""
                 let ac = UIActivityViewController(activityItems: items, applicationActivities: nil)
@@ -188,30 +144,8 @@ class BeaconViewController: UIViewController, UITableViewDelegate, UITableViewDa
             alert.addAction(UIAlertAction(title: "Processed File", style: .default , handler:{ (UIAlertAction) in
                 print("User click Processed File button")
 
-                var remainder = ""
-                for data in arr {
-                    // Split the data equally
-                    var dividedData = self.split(myString: data.sharedValue.hexEncodedString(), by: 32, remainder: remainder)
-
-                    if let firstData = dividedData.first {
-                        dividedData[0] = remainder + firstData // append the remainder to the first of element of the data
-                    }
-
-                    if let lastData = dividedData.last {
-                        // If the data is not split equally
-                        if lastData.length != 32 {
-                            remainder = lastData // Set the remainder as the last element of the divided data
-                            dividedData.removeLast()
-                        } else {
-                            remainder = ""
-                        }
-                    }
-
-                    for divData in dividedData where divData.starts(with: String(decoding: [0x08], as: UTF8.self)) {
-                        if divData != "ffffffffffffffffffffffffffffffff" {
-                            self.stringToBeShared += "\(divData)\n"
-                        }
-                    }
+                for data in arr where data.starts(with: String(decoding: [0x08], as: UTF8.self)) {
+                    self.stringToBeShared += "\(data)\n"
                 }
                 let items = [self.stringToBeShared]
                 self.stringToBeShared = ""
@@ -234,64 +168,15 @@ class BeaconViewController: UIViewController, UITableViewDelegate, UITableViewDa
         }
     }
 
-    private func split(myString: String, by length: Int, remainder: String) -> [String] {
-        var startIndex = myString.startIndex
-        var results = [Substring]()
-        if remainder.length == 0 {
-            while startIndex < myString.endIndex {
-                let endIndex = myString.index(startIndex, offsetBy: length, limitedBy: myString.endIndex) ?? myString.endIndex
-                results.append(myString[startIndex..<endIndex])
-                startIndex = endIndex
-            }
-
-            return results.map { String($0) }
-        } else {
-            while startIndex < myString.endIndex {
-                let index: Int = myString.distance(from: myString.startIndex, to: startIndex)
-                if index == 0 {
-                    let endIndex = myString.index(startIndex, offsetBy: (length-remainder.length), limitedBy: myString.endIndex) ?? myString.endIndex
-                    results.append(myString[startIndex..<endIndex])
-                    startIndex = endIndex
-                } else {
-                    let endIndex = myString.index(startIndex, offsetBy: length, limitedBy: myString.endIndex) ?? myString.endIndex
-                    results.append(myString[startIndex..<endIndex])
-                    startIndex = endIndex
-                }
-            }
-            return results.map { String($0) }
-        }
-    }
-
     /// Plots the data when pressed
     /// - Parameter sender: Any touch on button
     @IBAction func plotButtonPressed(_ sender: Any) {
         if let uuid = pressedUUID?.uuidString {
-            var arr = BLScanner.shared.getInformation(uuid: uuid)
-            arr.removeFirst()
+            let arr = BLScanner.shared.getInformation(uuid: uuid)
             var arrData: [String] = []
 
-            var remainder = ""
-            for data in arr {
-                // Split the data equally
-                var dividedData = self.split(myString: data.sharedValue.hexEncodedString(), by: 32, remainder: remainder)
-
-                if let firstData = dividedData.first {
-                    dividedData[0] = remainder + firstData // append the remainder to the first of element of the data
-                }
-
-                if let lastData = dividedData.last {
-                    // If the data is not split equally
-                    if lastData.length != 32 {
-                        remainder = lastData // Set the remainder as the last element of the divided data
-                        dividedData.removeLast()
-                    } else {
-                        remainder = ""
-                    }
-                }
-
-                for divData in dividedData where !(divData.starts(with: String(decoding: [0x08], as: UTF8.self))) {
-                    arrData.append("\(divData)")
-                }
+            for data in arr where !(data.starts(with: String(decoding: [0x08], as: UTF8.self))) {
+                arrData.append(data)
             }
 
             let (sensorDataMultipleMeasurements,_) = decodeData(rawData: arrData)

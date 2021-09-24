@@ -23,7 +23,8 @@ class BLScanner: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
     var delegate : BLScannerDelegate?
     var connectedDelegate : ConnectedPeripheralsDelegate?
     private var connectedPeripherals = [String : CBPeripheral]()
-    private var peripheralsInfoToBeShared = [String : [SharedData]]()
+    private var peripheralsInfoToBeShared = [String : [String]]()
+    private var peripheralsRemainder = [String: String]()
     private var retrievingData = [String : MutableProperty<Bool>]()
     private var player: AVAudioPlayer?
     var changeIsHappening = MutableProperty<Bool>(false)
@@ -102,6 +103,7 @@ class BLScanner: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
         print("Connected to \(peripheral.name ?? "Uknown Device")")
         centralManager?.stopScan()
         connectedPeripherals[peripheral.identifier.uuidString] = peripheral
+        peripheralsRemainder[peripheral.identifier.uuidString] = ""
         retrievingData[peripheral.identifier.uuidString] = MutableProperty(false)
         if let connectedPeripheral = connectedPeripherals[peripheral.identifier.uuidString] {
             connectedPeripheral.delegate = self
@@ -211,39 +213,52 @@ class BLScanner: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
             return
         }
 
+        var tempList: [String]
         if let charValue = characteristic.value {
-            if charValue.bytes.containsContinuousValue(value: 255, forMinimumRepeats: 16) {
-                if !charValue.bytes.allEqual() {
-                    print("Peripheral Name: \(peripheral.name ?? "Unknown Device"), value: \(charValue.hexEncodedString())")
-                    if peripheralsInfoToBeShared.keys.contains(peripheral.identifier.uuidString) {
-                        if var tempList = peripheralsInfoToBeShared[peripheral.identifier.uuidString] {
-                            tempList.append(SharedData(sharedUUID: characteristic.uuid, sharedValue: charValue))
-                            peripheralsInfoToBeShared.updateValue(tempList, forKey: peripheral.identifier.uuidString)
+            if (charValue.hexEncodedString() != "17000000") && !(charValue.bytes.first == 255 && charValue.bytes.allEqual()) {
+                print("Peripheral Name: \(peripheral.name ?? "Unknown Device"), value: \(charValue.hexEncodedString())")
+                if peripheralsInfoToBeShared.keys.contains(peripheral.identifier.uuidString) {
+                    tempList = peripheralsInfoToBeShared[peripheral.identifier.uuidString]!
+                } else {
+                    tempList = []
+                }
+                if let remainder = peripheralsRemainder[peripheral.identifier.uuidString] {
+                    // Split the data equally
+                    var dividedData = split(myString: charValue.hexEncodedString(), by: 32, remainder: remainder)
+
+                    if let firstData = dividedData.first {
+                        dividedData[0] = remainder + firstData // append the remainder to the first of element of the data
+                    }
+
+                    if let lastData = dividedData.last {
+                        // If the data is not split equally
+                        if lastData.length != 32 {
+                            peripheralsRemainder.updateValue(lastData, forKey: peripheral.identifier.uuidString) // Set the remainder as the last element of the divided data
+                            dividedData.removeLast()
+                        } else {
+                            peripheralsRemainder.updateValue("", forKey: peripheral.identifier.uuidString)
                         }
+                    }
+                    for divData in dividedData {
+                        if divData != "ffffffffffffffffffffffffffffffff" {
+                            tempList.append(divData)
+                        }
+                    }
+
+                    if peripheralsInfoToBeShared.keys.contains(peripheral.identifier.uuidString) {
+                        peripheralsInfoToBeShared.updateValue(tempList, forKey: peripheral.identifier.uuidString)
                     } else {
-                        var informationToBeShared: [SharedData] = []
-                        informationToBeShared.append(SharedData(sharedUUID: characteristic.uuid, sharedValue: charValue))
-                        peripheralsInfoToBeShared[peripheral.identifier.uuidString] = informationToBeShared
+                        peripheralsInfoToBeShared[peripheral.identifier.uuidString] = tempList
                         print("creating new list")
                     }
+                }
+
+                if charValue.bytes.containsContinuousValue(value: 255, forMinimumRepeats: 16) {
                     print("\(peripheral.name ?? "Unknown Device") is DONE.")
                     retrievingData.updateValue(MutableProperty(false), forKey: peripheral.identifier.uuidString)
                     changeIsHappening.value = false
                     peripheral.setNotifyValue(false, for: characteristic)
                     playSound()
-                }
-            } else {
-                print("Peripheral Name: \(peripheral.name ?? "Unknown Device"), value: \(charValue.hexEncodedString())")
-                if peripheralsInfoToBeShared.keys.contains(peripheral.identifier.uuidString) {
-                    if var tempList = peripheralsInfoToBeShared[peripheral.identifier.uuidString] {
-                        tempList.append(SharedData(sharedUUID: characteristic.uuid, sharedValue: charValue))
-                        peripheralsInfoToBeShared.updateValue(tempList, forKey: peripheral.identifier.uuidString)
-                    }
-                } else {
-                    var informationToBeShared: [SharedData] = []
-                    informationToBeShared.append(SharedData(sharedUUID: characteristic.uuid, sharedValue: charValue))
-                    peripheralsInfoToBeShared[peripheral.identifier.uuidString] = informationToBeShared
-                    print("creating new list")
                 }
             }
         }
@@ -272,11 +287,11 @@ class BLScanner: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
 
     /// Retrieves the information that needs to be shared.
     /// - Returns: List of shared data from the flash of the peripheral
-    func getInformation(uuid: String) -> [SharedData] {
+    func getInformation(uuid: String) -> [String] {
         return peripheralsInfoToBeShared[uuid] ?? []
     }
-
-    func getAllInformation() -> [String : [SharedData]] {
+    
+    func getAllInformation() -> [String : [String]] {
         return peripheralsInfoToBeShared
     }
 
@@ -354,7 +369,7 @@ class BLScanner: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
         connectedDelegate?.update(self)
     }
 
-    func playSound() {
+    private func playSound() {
         guard let url = Bundle.main.url(forResource: "splash", withExtension: "wav") else { return }
         do {
             try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
@@ -367,6 +382,34 @@ class BLScanner: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
 
         } catch let error {
             print(error.localizedDescription)
+        }
+    }
+
+    private func split(myString: String, by length: Int, remainder: String) -> [String] {
+        var startIndex = myString.startIndex
+        var results = [Substring]()
+        if remainder.length == 0 {
+            while startIndex < myString.endIndex {
+                let endIndex = myString.index(startIndex, offsetBy: length, limitedBy: myString.endIndex) ?? myString.endIndex
+                results.append(myString[startIndex..<endIndex])
+                startIndex = endIndex
+            }
+
+            return results.map { String($0) }
+        } else {
+            while startIndex < myString.endIndex {
+                let index: Int = myString.distance(from: myString.startIndex, to: startIndex)
+                if index == 0 {
+                    let endIndex = myString.index(startIndex, offsetBy: (length-remainder.length), limitedBy: myString.endIndex) ?? myString.endIndex
+                    results.append(myString[startIndex..<endIndex])
+                    startIndex = endIndex
+                } else {
+                    let endIndex = myString.index(startIndex, offsetBy: length, limitedBy: myString.endIndex) ?? myString.endIndex
+                    results.append(myString[startIndex..<endIndex])
+                    startIndex = endIndex
+                }
+            }
+            return results.map { String($0) }
         }
     }
 }
