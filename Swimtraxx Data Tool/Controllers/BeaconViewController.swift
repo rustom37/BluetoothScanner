@@ -21,6 +21,7 @@ class BeaconViewController: UIViewController, UITableViewDelegate, UITableViewDa
     var stringToBeShared: String =  ""
     var pressedUUID: UUID?
     var isPressedUUIDNil: MutableProperty<Bool> = MutableProperty(true)
+    var retrieveFromFlashIsPressed : MutableProperty<Bool> = MutableProperty(false)
 
     /// Loads the view
     override func viewDidLoad() {
@@ -75,6 +76,7 @@ class BeaconViewController: UIViewController, UITableViewDelegate, UITableViewDa
     /// When pressed on the retrieve data from flash button, data retrieval from flash begins
     /// - Parameter sender: Any touch on button
     @IBAction func writeDataPressed(_ sender: Any) {
+        retrieveFromFlashIsPressed.value = true
         let peripherals = Array(BLScanner.shared.getConnectedObjects().values)
 
         DispatchQueue.concurrentPerform(iterations: peripherals.count) { index in
@@ -83,6 +85,8 @@ class BeaconViewController: UIViewController, UITableViewDelegate, UITableViewDa
                     if service.uuid == TransferService.NUS_UUID {
                         if let characteristics = service.characteristics {
                             for characteristic in characteristics where (characteristic.uuid == TransferService.WRITE_UUID && characteristic.properties.contains(.write)) {
+                                print("Retrieving the used flash memory percentage of \(peripherals[index].name ?? "Uknown Device")...")
+                                peripherals[index].writeValue(Data([0x34]), for: characteristic, type: CBCharacteristicWriteType.withResponse)
                                 print("Writing data of \(peripherals[index].identifier.uuidString) with response...")
                                 peripherals[index].writeValue(Data([0x17]), for: characteristic, type: CBCharacteristicWriteType.withResponse)
                             }
@@ -204,16 +208,51 @@ class BeaconViewController: UIViewController, UITableViewDelegate, UITableViewDa
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "customTableViewCell", for: indexPath) as! CustomTableViewCell
 
+        var flashMemoryPercentage = UInt8(0)
+        var flashMemorySize = 0
+        var progress = 0
+
         let currentKey = BLScanner.shared.getConnectedObjectsKeys()[indexPath.row]
         if let peripheral : CBPeripheral = BLScanner.shared.getConnectedObjects()[currentKey] {
-            cell.peripheralName.text = "Name: \(peripheral.name ?? "Name Unknown")"
+            cell.peripheralName.text = "\(peripheral.name ?? "Name Unknown")"
             cell.peripheralName.adjustsFontSizeToFitWidth = true
             cell.peripheralName.minimumScaleFactor = 0.25
+            flashMemoryPercentage = BLScanner.shared.getFlashMemoryPercentageValue(uuid: peripheral.identifier.uuidString)
+            flashMemorySize = BLScanner.shared.getFlashMemorySizeValue(uuid: peripheral.identifier.uuidString)
         }
 
-        let retrievalKey = BLScanner.shared.getRetrievalStatusKeys()[indexPath.row]
-        if let retrievalValue : MutableProperty<Bool> = BLScanner.shared.getRetrievalStatus()[retrievalKey] {
-            cell.dealWithLoadingSpinner(retrievalValue: retrievalValue.value)
+        if retrieveFromFlashIsPressed.value == true {
+            if flashMemoryPercentage == 0 {
+                cell.dealWithImageView(flashEmpty: true)
+                cell.progressBar.isHidden = true
+                cell.completedPercentage.isHidden = true
+            } else {
+                cell.dealWithImageView(flashEmpty: false)
+                if let retrieveValue: MutableProperty<Bool> = BLScanner.shared.getRetrievalStatus()[currentKey] {
+                    if retrieveValue.value == true {
+                        cell.progressBar.isHidden = false
+                        cell.completedPercentage.isHidden = false
+                        if let alreadyTransferredData : Int = BLScanner.shared.getAlreadyTransferredData()[currentKey] {
+                            if flashMemorySize != 0 {
+                                progress = (alreadyTransferredData * 100) / flashMemorySize
+                                cell.completedPercentage.text = "\(progress)%"
+                            } else {
+                                progress = 0
+                                cell.completedPercentage.text = "\(progress)%"
+                            }
+                            let normalizedProgress : Float = Float(progress) / 100.0
+                            cell.progressBar.setProgress(normalizedProgress, animated: true)
+                        }
+                    } else {
+                        cell.progressBar.setProgress(1.0, animated: true)
+                        if let alreadyTransferredData : Int = BLScanner.shared.getAlreadyTransferredData()[currentKey] {
+                            if alreadyTransferredData == flashMemorySize {
+                                cell.completedPercentage.text = "Done"
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         return cell
@@ -225,20 +264,24 @@ class BeaconViewController: UIViewController, UITableViewDelegate, UITableViewDa
     ///   - indexPath: An index path locating the new selected row in tableView.
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let currentKey = BLScanner.shared.getConnectedObjectsKeys()[indexPath.row]
-        let retrievalKey = BLScanner.shared.getRetrievalStatusKeys()[indexPath.row]
         if let peripheral : CBPeripheral = BLScanner.shared.getConnectedObjects()[currentKey] {
-            if let retrievalValue : MutableProperty<Bool> = BLScanner.shared.getRetrievalStatus()[retrievalKey] {
-                if retrievalValue.value == false && BLScanner.shared.getAllInformation().keys.contains(peripheral.identifier.uuidString) {
+            if let retrievalValue : MutableProperty<Bool> = BLScanner.shared.getRetrievalStatus()[currentKey] {
+                if retrievalValue.value == false && BLScanner.shared.getAllInformation().keys.contains(peripheral.identifier.uuidString) && BLScanner.shared.getFlashMemoryPercentageValue(uuid: peripheral.identifier.uuidString) != 0 {
                     self.title = "Selected Device: \(BLScanner.shared.getConnectedObjects()[peripheral.identifier.uuidString]?.name ?? "Name Unknown")"
                     pressedUUID = peripheral.identifier
                     isPressedUUIDNil.value = false
+                } else if retrievalValue.value == false && BLScanner.shared.getFlashMemoryPercentageValue(uuid: peripheral.identifier.uuidString) == 0 {
+                    self.title = "\(BLScanner.shared.getConnectedObjects()[peripheral.identifier.uuidString]?.name ?? "Name Unknown") has nothing stored in Flash Memory"
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 2, execute: {
+                        self.title = "Connected Device(s)"
+                    })
                 } else if retrievalValue.value == false && !BLScanner.shared.getAllInformation().keys.contains(peripheral.identifier.uuidString) {
-                    self.title = "Selected device has not retrieved data yet"
+                    self.title = "\(BLScanner.shared.getConnectedObjects()[peripheral.identifier.uuidString]?.name ?? "Name Unknown") has not retrieved data yet"
                     DispatchQueue.main.asyncAfter(deadline: .now() + 2, execute: {
                         self.title = "Connected Device(s)"
                     })
                 } else {
-                    self.title = "Selected device is still retrieving data..."
+                    self.title = "\(BLScanner.shared.getConnectedObjects()[peripheral.identifier.uuidString]?.name ?? "Name Unknown") is still retrieving data..."
                     DispatchQueue.main.asyncAfter(deadline: .now() + 2, execute: {
                         self.title = "Connected Device(s)"
                     })

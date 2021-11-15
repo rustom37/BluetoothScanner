@@ -37,7 +37,9 @@ extension DataConvertible {
 
     var data: Data {
         var value = self
-        return Data(buffer: UnsafeBufferPointer(start: &value, count: 1))
+        var data = Data()
+        withUnsafePointer(to: &value) { data.append(UnsafeBufferPointer(start: $0, count: 1)) }
+        return data
     }
 }
 
@@ -60,6 +62,18 @@ extension Float64 : DataConvertible { }
 extension Data {
     var bytes : [UInt8] {
         return [UInt8](self)
+    }
+
+    init<T>(value: T) {
+        self = withUnsafePointer(to: value) { (ptr: UnsafePointer<T>) -> Data in
+            return Data(buffer: UnsafeBufferPointer(start: ptr, count: 1))
+        }
+    }
+
+    mutating func append<T>(value: T) {
+        withUnsafePointer(to: value) { (ptr: UnsafePointer<T>) in
+            append(UnsafeBufferPointer(start: ptr, count: 1))
+        }
     }
 }
 

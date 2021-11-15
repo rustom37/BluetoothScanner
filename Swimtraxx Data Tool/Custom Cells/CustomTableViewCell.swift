@@ -11,7 +11,9 @@ import UIKit
 class CustomTableViewCell: UITableViewCell {
 
     @IBOutlet weak var peripheralName: UILabel!
-    @IBOutlet weak var loadingSpinner: UIActivityIndicatorView!
+    @IBOutlet weak var progressBar: UIProgressView!
+    @IBOutlet weak var completedPercentage: UILabel!
+    @IBOutlet weak var emptyFlashIcon: UIImageView!
 
     // Initialization code
     override func awakeFromNib() { super.awakeFromNib() }
@@ -20,11 +22,11 @@ class CustomTableViewCell: UITableViewCell {
     override func setSelected(_ selected: Bool, animated: Bool) { super.setSelected(selected, animated: animated)
     }
 
-    func dealWithLoadingSpinner(retrievalValue: Bool) {
-        if retrievalValue {
-            loadingSpinner.startAnimating()
+    func dealWithImageView(flashEmpty: Bool) {
+        if flashEmpty {
+            emptyFlashIcon.isHidden = false
         } else {
-            loadingSpinner.stopAnimating()
+            emptyFlashIcon.isHidden = true
         }
     }
 }

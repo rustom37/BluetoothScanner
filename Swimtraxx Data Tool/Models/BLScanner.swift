@@ -24,7 +24,10 @@ class BLScanner: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
     var connectedDelegate : ConnectedPeripheralsDelegate?
     private var connectedPeripherals = [String : CBPeripheral]()
     private var peripheralsInfoToBeShared = [String : [String]]()
-    private var peripheralsRemainder = [String: String]()
+    private var peripheralsRemainder = [String : String]()
+    private var peripheralsFlashMemory = [String : MutableProperty<UInt8>]()
+    private var actualFlashMemorySizes = [String: Int]()
+    private var flashMemoryChunkTransferred = [String: Int]()
     private var retrievingData = [String : MutableProperty<Bool>]()
     private var player: AVAudioPlayer?
     var changeIsHappening = MutableProperty<Bool>(false)
@@ -104,6 +107,9 @@ class BLScanner: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
         centralManager?.stopScan()
         connectedPeripherals[peripheral.identifier.uuidString] = peripheral
         peripheralsRemainder[peripheral.identifier.uuidString] = ""
+        peripheralsFlashMemory[peripheral.identifier.uuidString] = MutableProperty(0)
+        actualFlashMemorySizes[peripheral.identifier.uuidString] = 0
+        flashMemoryChunkTransferred[peripheral.identifier.uuidString] = 0
         retrievingData[peripheral.identifier.uuidString] = MutableProperty(false)
         if let connectedPeripheral = connectedPeripherals[peripheral.identifier.uuidString] {
             connectedPeripheral.delegate = self
@@ -131,8 +137,6 @@ class BLScanner: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
     func peripheral(_ peripheral:CBPeripheral, didWriteValueFor characteristic: CBCharacteristic, error: Error?) {
         if error == nil {
             print("TRUE WRITING")
-            retrievingData.updateValue(MutableProperty(true), forKey: peripheral.identifier.uuidString)
-            changeIsHappening.value = true
         }
 
     }
@@ -215,8 +219,36 @@ class BLScanner: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
 
         var tempList: [String]
         if let charValue = characteristic.value {
-            if (charValue.hexEncodedString() != "17000000") && !(charValue.bytes.first == 255 && charValue.bytes.allEqual()) {
+            if peripheralsFlashMemory[peripheral.identifier.uuidString]?.value == 0 {
+                if charValue[0] == 52 {
+                    print("Peripheral Name: \(peripheral.name ?? "Unknown Device"), Flash Memory Usage Percentage: \(UInt8(charValue[1]))%")
+                    let flashSize = (Int(UInt8(charValue[1])) * TransferService.FLASH_MEMORY) / 100
+                    if peripheralsFlashMemory.keys.contains(peripheral.identifier.uuidString) {
+                        peripheralsFlashMemory.updateValue(MutableProperty<UInt8>(UInt8(charValue[1])), forKey: peripheral.identifier.uuidString)
+                        actualFlashMemorySizes.updateValue(flashSize, forKey: peripheral.identifier.uuidString)
+                    } else {
+                        peripheralsFlashMemory[peripheral.identifier.uuidString]?.value = UInt8(charValue[1])
+                        actualFlashMemorySizes[peripheral.identifier.uuidString]? = flashSize
+                    }
+
+                    if UInt8(charValue[1]) != 0 {
+                        retrievingData.updateValue(MutableProperty(true), forKey: peripheral.identifier.uuidString)
+                        changeIsHappening.value = true
+                    } else {
+                        print("\(peripheral.name ?? "Unknown Device") is EMPTY.")
+                        retrievingData.updateValue(MutableProperty(false), forKey: peripheral.identifier.uuidString)
+                        changeIsHappening.value = true
+                        peripheral.setNotifyValue(false, for: characteristic)
+                    }
+                }
+            } else if (charValue.hexEncodedString() != "17000000") && !(charValue.bytes.first == 255 && charValue.bytes.allEqual()) {
                 print("Peripheral Name: \(peripheral.name ?? "Unknown Device"), value: \(charValue.hexEncodedString())")
+                flashMemoryChunkTransferred[peripheral.identifier.uuidString]? += charValue.count
+                if changeIsHappening.value == true {
+                    changeIsHappening.value = false
+                } else {
+                    changeIsHappening.value = true
+                }
                 if peripheralsInfoToBeShared.keys.contains(peripheral.identifier.uuidString) {
                     tempList = peripheralsInfoToBeShared[peripheral.identifier.uuidString]!
                 } else {
@@ -256,6 +288,18 @@ class BLScanner: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
                 if charValue.bytes.containsContinuousValue(value: 255, forMinimumRepeats: 16) {
                     print("\(peripheral.name ?? "Unknown Device") is DONE.")
                     retrievingData.updateValue(MutableProperty(false), forKey: peripheral.identifier.uuidString)
+                    if let flashMemorysize = actualFlashMemorySizes[peripheral.identifier.uuidString] {
+                        flashMemoryChunkTransferred.updateValue(flashMemorysize, forKey: peripheral.identifier.uuidString)
+                    }
+                    changeIsHappening.value = false
+                    peripheral.setNotifyValue(false, for: characteristic)
+                    playSound()
+                } else if flashMemoryChunkTransferred[peripheral.identifier.uuidString]! > ((Int(peripheralsFlashMemory[peripheral.identifier.uuidString]!.value) * TransferService.FLASH_MEMORY) / 100) {
+                    print("\(peripheral.name ?? "Unknown Device") is DONE.")
+                    retrievingData.updateValue(MutableProperty(false), forKey: peripheral.identifier.uuidString)
+                    if let flashMemorysize = actualFlashMemorySizes[peripheral.identifier.uuidString] {
+                        flashMemoryChunkTransferred.updateValue(flashMemorysize, forKey: peripheral.identifier.uuidString)
+                    }
                     changeIsHappening.value = false
                     peripheral.setNotifyValue(false, for: characteristic)
                     playSound()
@@ -339,6 +383,48 @@ class BLScanner: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
 
     func getRetrievalStatusKeys() -> [String] {
         return Array(retrievingData.keys)
+    }
+
+    /// Retrieves all the flash memory percentages of connected peripherals
+    /// - Returns: Dictionary of flash memory percentages
+    func getFlashMemoryPercentage() -> [String : MutableProperty<UInt8>] {
+        return peripheralsFlashMemory
+    }
+
+    func getFlashMemoryPercentageKeys() -> [String] {
+        return Array(peripheralsFlashMemory.keys)
+    }
+
+    func getFlashMemoryPercentageValue(uuid: String) -> UInt8 {
+        return peripheralsFlashMemory[uuid]?.value ?? 0
+    }
+
+    /// Retrieves all the flash memory Sizes of connected peripherals
+    /// - Returns: Dictionary of flash memory sizes
+    func getFlashMemorySize() -> [String : Int] {
+        return actualFlashMemorySizes
+    }
+
+    func getFlashMemorySizeKeys() -> [String] {
+        return Array(actualFlashMemorySizes.keys)
+    }
+
+    func getFlashMemorySizeValue(uuid: String) -> Int {
+        return actualFlashMemorySizes[uuid] ?? 0
+    }
+
+    /// Retrieves all the already transferred data of connected peripherals
+    /// - Returns: Dictionary of already transferred data size
+    func getAlreadyTransferredData() -> [String : Int] {
+        return flashMemoryChunkTransferred
+    }
+
+    func getAlreadyTransferredDataKeys() -> [String] {
+        return Array(flashMemoryChunkTransferred.keys)
+    }
+
+    func getAlreadyTransferredDataValue(uuid: String) -> Int {
+        return flashMemoryChunkTransferred[uuid] ?? 0
     }
 
     /// Displays the available BLObjects
