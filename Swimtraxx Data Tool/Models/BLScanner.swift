@@ -24,6 +24,7 @@ class BLScanner: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
     var connectedDelegate : ConnectedPeripheralsDelegate?
     private var connectedPeripherals = [String : CBPeripheral]()
     private var peripheralsInfoToBeShared = [String : [String]]()
+    private var adpdDataPerPeripheral = [String : [String]]()
     private var peripheralsRemainder = [String : String]()
     private var peripheralsFlashMemory = [String : MutableProperty<UInt8>]()
     private var actualFlashMemorySizes = [String: Int]()
@@ -218,8 +219,19 @@ class BLScanner: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
         }
 
         var tempList: [String]
+        var adpdList: [String]
         if let charValue = characteristic.value {
-            if peripheralsFlashMemory[peripheral.identifier.uuidString]?.value == 0 {
+            // End of flash is reached but available 0xFF is less than 16
+            if charValue.hexEncodedString() == "646174616f66666c6f61646973646f6e65" {
+                print("2 - \(peripheral.name ?? "Unknown Device") is DONE.")
+                retrievingData.updateValue(MutableProperty(false), forKey: peripheral.identifier.uuidString)
+                if let flashMemorysize = actualFlashMemorySizes[peripheral.identifier.uuidString] {
+                    flashMemoryChunkTransferred.updateValue(flashMemorysize, forKey: peripheral.identifier.uuidString)
+                }
+                changeIsHappening.value = false
+                peripheral.setNotifyValue(false, for: characteristic)
+                playSound()
+            } else if peripheralsFlashMemory[peripheral.identifier.uuidString]?.value == 0 { // Flash memory is empty
                 if charValue[0] == 52 {
                     print("Peripheral Name: \(peripheral.name ?? "Unknown Device"), Flash Memory Usage Percentage: \(UInt8(charValue[1]))%")
                     let flashSize = (Int(UInt8(charValue[1])) * TransferService.FLASH_MEMORY) / 100
@@ -241,7 +253,7 @@ class BLScanner: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
                         peripheral.setNotifyValue(false, for: characteristic)
                     }
                 }
-            } else if (charValue.hexEncodedString() != "17000000") && !(charValue.bytes.first == 255 && charValue.bytes.allEqual()) {
+            } else if (charValue.hexEncodedString() != "17000000") && !(charValue.bytes.first == 255 && charValue.bytes.allEqual()) { // Data received over BLE
                 print("Peripheral Name: \(peripheral.name ?? "Unknown Device"), value: \(charValue.hexEncodedString())")
                 flashMemoryChunkTransferred[peripheral.identifier.uuidString]? += charValue.count
                 if changeIsHappening.value == true {
@@ -251,8 +263,10 @@ class BLScanner: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
                 }
                 if peripheralsInfoToBeShared.keys.contains(peripheral.identifier.uuidString) {
                     tempList = peripheralsInfoToBeShared[peripheral.identifier.uuidString]!
+                    adpdList = adpdDataPerPeripheral[peripheral.identifier.uuidString]!
                 } else {
                     tempList = []
+                    adpdList = []
                 }
                 if let remainder = peripheralsRemainder[peripheral.identifier.uuidString] {
                     // Split the data equally
@@ -272,8 +286,28 @@ class BLScanner: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
                         }
                     }
                     for divData in dividedData {
+                        // If the data is not end of file
                         if divData != "ffffffffffffffffffffffffffffffff" {
-                            tempList.append(divData)
+                            // If data is related to ADPD Log
+                            if divData.starts(with: "03") {
+                                let tmp1 = divData.dropLast(10)
+                                let tmp2 = tmp1.dropFirst(2)
+                                let tmpArr = split(myString: "\(tmp2)", by: 2, remainder: "")
+                                let currLibState = UInt8(tmpArr[0], radix: 16)
+                                let aFifoDataB0 = UInt8(tmpArr[1], radix: 16)
+                                let aFifoDataB1 = UInt8(tmpArr[2], radix: 16)
+                                let aFifoDataB2 = UInt8(tmpArr[3], radix: 16)
+                                let aFifoDataB3 = UInt8(tmpArr[4], radix: 16)
+                                let acceldata_320 = UInt8(tmpArr[5], radix: 16)
+                                let acceldata_321 = UInt8(tmpArr[6], radix: 16)
+                                let acceldata_322 = UInt8(tmpArr[7], radix: 16)
+                                let hr = UInt8(tmpArr[8], radix: 16)
+                                let timestamp = UInt8(tmpArr[9], radix: 16)
+
+                                adpdList.append("Application \(currLibState ?? 00), \(aFifoDataB0 ?? 00), \(aFifoDataB1 ?? 00), \(aFifoDataB2 ?? 00), \(aFifoDataB3 ?? 00), \(acceldata_320 ?? 00), \(acceldata_321 ?? 00), \(acceldata_322 ?? 00), \(hr ?? 00), \(timestamp ?? 00)")
+                            } else {
+                                tempList.append(divData)
+                            }
                         }
                     }
 
@@ -283,10 +317,18 @@ class BLScanner: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
                         peripheralsInfoToBeShared[peripheral.identifier.uuidString] = tempList
                         print("creating new list")
                     }
+
+                    if adpdDataPerPeripheral.keys.contains(peripheral.identifier.uuidString) {
+                        adpdDataPerPeripheral.updateValue(adpdList, forKey: peripheral.identifier.uuidString)
+                    } else {
+                        adpdDataPerPeripheral[peripheral.identifier.uuidString] = adpdList
+                        print("creating new ADPD list")
+                    }
                 }
 
+                // If end of flash file is reached
                 if charValue.bytes.containsContinuousValue(value: 255, forMinimumRepeats: 16) {
-                    print("\(peripheral.name ?? "Unknown Device") is DONE.")
+                    print("1 - \(peripheral.name ?? "Unknown Device") is DONE.")
                     retrievingData.updateValue(MutableProperty(false), forKey: peripheral.identifier.uuidString)
                     if let flashMemorysize = actualFlashMemorySizes[peripheral.identifier.uuidString] {
                         flashMemoryChunkTransferred.updateValue(flashMemorysize, forKey: peripheral.identifier.uuidString)
@@ -294,16 +336,7 @@ class BLScanner: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
                     changeIsHappening.value = false
                     peripheral.setNotifyValue(false, for: characteristic)
                     playSound()
-                } else if flashMemoryChunkTransferred[peripheral.identifier.uuidString]! > ((Int(peripheralsFlashMemory[peripheral.identifier.uuidString]!.value) * TransferService.FLASH_MEMORY) / 100) {
-                    print("\(peripheral.name ?? "Unknown Device") is DONE.")
-                    retrievingData.updateValue(MutableProperty(false), forKey: peripheral.identifier.uuidString)
-                    if let flashMemorysize = actualFlashMemorySizes[peripheral.identifier.uuidString] {
-                        flashMemoryChunkTransferred.updateValue(flashMemorysize, forKey: peripheral.identifier.uuidString)
-                    }
-                    changeIsHappening.value = false
-                    peripheral.setNotifyValue(false, for: characteristic)
-                    playSound()
-                }
+                } 
             }
         }
     }
@@ -330,15 +363,33 @@ class BLScanner: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
     }
 
     /// Retrieves the information that needs to be shared.
+    /// - Parameter uuid: The UUID string of the peripheral
     /// - Returns: List of shared data from the flash of the peripheral
     func getInformation(uuid: String) -> [String] {
         return peripheralsInfoToBeShared[uuid] ?? []
     }
-    
+
+    /// Retrieves the information that needs to be shared of all peripherals.
+    /// - Returns: Map of shared data from the flash of all peripherals
     func getAllInformation() -> [String : [String]] {
         return peripheralsInfoToBeShared
     }
 
+    /// Retrieves the ADPD information that needs to be shared.
+    /// - Parameter uuid: The UUID string of the peripheral
+    /// - Returns: List of shared  ADPD data of the peripheral
+    func getADPDInformation(uuid: String) -> [String] {
+        return adpdDataPerPeripheral[uuid] ?? []
+    }
+
+    /// Retrieves the  ADPD information that needs to be shared of all peripherals.
+    /// - Returns: Map of shared ADPD data of all peripherals
+    func getAllADPDInformation() -> [String : [String]] {
+        return adpdDataPerPeripheral
+    }
+
+    /// Checks if every single peripheral is empty.
+    /// - Returns: True if all peripherals are empty, false otherwise.
     func areAllInfoEmpty() -> Bool {
         for (_,list) in peripheralsInfoToBeShared {
             if !list.isEmpty {
@@ -349,10 +400,12 @@ class BLScanner: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
     }
 
     /// Deletes all the data in the list of shared flash data.
+    /// - Parameter uuid: The UUID string of the peripheral
     func deleteInformation(uuid: String) {
         peripheralsInfoToBeShared[uuid]?.removeAll()
     }
 
+    /// Deletes all the data in the list of shared flash data for all peripherals.
     func deleteAllInformation() {
         for var (_, list) in peripheralsInfoToBeShared {
             list.removeAll()
@@ -371,6 +424,8 @@ class BLScanner: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
         return connectedPeripherals
     }
 
+    /// Retrieves the keys of all the connected CBPeripherals.
+    /// - Returns: Array of keys for all connected CBPeripherals
     func getConnectedObjectsKeys() -> [String] {
         return Array(connectedPeripherals.keys)
     }
@@ -381,6 +436,8 @@ class BLScanner: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
         return retrievingData
     }
 
+    /// Retrieves the keys of all statuses of CBPeripherals.
+    /// - Returns: Array of keys for all statuses of CBPeripherals.
     func getRetrievalStatusKeys() -> [String] {
         return Array(retrievingData.keys)
     }
@@ -391,10 +448,15 @@ class BLScanner: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
         return peripheralsFlashMemory
     }
 
+    /// Retrieves the keys of all Flash memory percentages percentages of CBPeripherals.
+    /// - Returns: Array of keys for all Flash memory percentages of CBPeripherals.
     func getFlashMemoryPercentageKeys() -> [String] {
         return Array(peripheralsFlashMemory.keys)
     }
 
+    /// Retrieves the value of the flash memory  of a specific CBPeripheral.
+    /// - Parameter uuid: The UUID string of the peripheral
+    /// - Returns: Integer value that represents the flash memory size percentage of the peripheral
     func getFlashMemoryPercentageValue(uuid: String) -> UInt8 {
         return peripheralsFlashMemory[uuid]?.value ?? 0
     }
@@ -405,24 +467,34 @@ class BLScanner: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
         return actualFlashMemorySizes
     }
 
+    /// Retrieves the keys of all flash memory sizes of CBPeripherals.
+    /// - Returns: Array of keys for all flash memory sizes of CBPeripherals.
     func getFlashMemorySizeKeys() -> [String] {
         return Array(actualFlashMemorySizes.keys)
     }
 
+    /// Retrieves the value of the flash memory size  of a specific CBPeripheral.
+    /// - Parameter uuid: The UUID string of the peripheral
+    /// - Returns: Integer value that represents the flash memory size of the peripheral
     func getFlashMemorySizeValue(uuid: String) -> Int {
         return actualFlashMemorySizes[uuid] ?? 0
     }
 
-    /// Retrieves all the already transferred data of connected peripherals
+    /// Retrieves all the amounts of already transferred data of connected peripherals
     /// - Returns: Dictionary of already transferred data size
     func getAlreadyTransferredData() -> [String : Int] {
         return flashMemoryChunkTransferred
     }
 
+    /// Retrieves the keys of all the amounts of already transferred data of connected peripherals
+    /// - Returns: Array of keys for all already transferred data size
     func getAlreadyTransferredDataKeys() -> [String] {
         return Array(flashMemoryChunkTransferred.keys)
     }
 
+    /// Retrieves the value of the amount of already transferred data of a specific CBPeripheral.
+    /// - Parameter uuid: The UUID string of the peripheral
+    /// - Returns: Integer value that represents the amount of already transferred data of the peripheral
     func getAlreadyTransferredDataValue(uuid: String) -> Int {
         return flashMemoryChunkTransferred[uuid] ?? 0
     }
@@ -455,6 +527,7 @@ class BLScanner: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
         connectedDelegate?.update(self)
     }
 
+    /// Plays the splash sound
     private func playSound() {
         guard let url = Bundle.main.url(forResource: "splash", withExtension: "wav") else { return }
         do {
@@ -471,6 +544,12 @@ class BLScanner: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
         }
     }
 
+    /// Splits a String equally according to a specific length
+    /// - Parameters:
+    ///   - myString: The original String to be divided
+    ///   - by: The length of each divided String
+    ///   - remainder: The last divided String from a previous split which is not equal to the required length
+    /// - Returns: Array of Strings which is made of the divided myString
     private func split(myString: String, by length: Int, remainder: String) -> [String] {
         var startIndex = myString.startIndex
         var results = [Substring]()
@@ -516,8 +595,9 @@ extension Data {
     }
 }
 
-///  Groups successive elements in tuples (value, numberOfSuccessions)
 extension Sequence where Iterator.Element: Equatable {
+    ///  Groups successive elements in tuples (value, numberOfSuccessions)
+    ///     - Returns: Array of tuples of values and number of successions
     func group() -> [(Iterator.Element, Int)] {
         var res: [(Iterator.Element, Int)] = []
         for el in self {
@@ -532,13 +612,19 @@ extension Sequence where Iterator.Element: Equatable {
 }
 
 extension Sequence where Iterator.Element == UInt8 {
+    /// Checks if there is a value being continuously repeated or not
+    /// - Parameters:
+    ///   - value: Value that is being checked for repetitions
+    ///   - forMinimumRepeats: The minimum number that value is being repeated
+    /// - Returns: True if the value is being repeated continuously for a minimum of forMinimumRepeats, False otherwise
     func containsContinuousValue(value: UInt8, forMinimumRepeats rep: Int) -> Bool {
         return self.group().contains{ (val, count) in count >= rep && val == value }
     }
 }
 
-/// Check if all elements of an array have the same value
 extension Array where Element : Equatable {
+    /// Checks if all elements of an array have the same value
+    /// - Returns: True if all elements of an array have the same value, False otherwise.
     func allEqual() -> Bool {
         if let firstElem = first {
             return !dropFirst().contains { $0 != firstElem }

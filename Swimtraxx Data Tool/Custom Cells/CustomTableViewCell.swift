@@ -15,13 +15,14 @@ class CustomTableViewCell: UITableViewCell {
     @IBOutlet weak var completedPercentage: UILabel!
     @IBOutlet weak var emptyFlashIcon: UIImageView!
 
-    // Initialization code
+    /// Initialization code
     override func awakeFromNib() { super.awakeFromNib() }
 
-    // Configure the view for the selected state
+    /// Configure the view for the selected state
     override func setSelected(_ selected: Bool, animated: Bool) { super.setSelected(selected, animated: animated)
     }
 
+    /// Functions to hide the content of the image view or not
     func dealWithImageView(flashEmpty: Bool) {
         if flashEmpty {
             emptyFlashIcon.isHidden = false

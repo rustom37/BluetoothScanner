@@ -102,6 +102,7 @@ class BeaconViewController: UIViewController, UITableViewDelegate, UITableViewDa
     @IBAction func shareButtonPressed(_ sender: Any) {
         if let uuid = self.pressedUUID?.uuidString {
             let arr = BLScanner.shared.getInformation(uuid: uuid)
+            let adpdArr = BLScanner.shared.getADPDInformation(uuid: uuid)
 
             var alertStyle = UIAlertController.Style.actionSheet
             if (UIDevice.current.userInterfaceIdiom == .pad) {
@@ -149,6 +150,23 @@ class BeaconViewController: UIViewController, UITableViewDelegate, UITableViewDa
                 print("User click Processed File button")
 
                 for data in arr where data.starts(with: String(decoding: [0x08], as: UTF8.self)) {
+                    self.stringToBeShared += "\(data)\n"
+                }
+                let items = [self.stringToBeShared]
+                self.stringToBeShared = ""
+                let ac = UIActivityViewController(activityItems: items, applicationActivities: nil)
+
+                if UIDevice.current.userInterfaceIdiom == .pad {
+                    ac.popoverPresentationController?.sourceView = self.view
+                    ac.popoverPresentationController?.sourceRect = CGRect(x: self.shareButton.center.x, y: self.shareButton.center.y,width: 0,height: 0)
+                }
+                self.present(ac, animated: true)
+            }))
+
+            alert.addAction(UIAlertAction(title: "ADPD LOG File", style: .default , handler:{ (UIAlertAction) in
+                print("User click Processed File button")
+
+                for data in adpdArr {
                     self.stringToBeShared += "\(data)\n"
                 }
                 let items = [self.stringToBeShared]

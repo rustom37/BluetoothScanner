@@ -123,10 +123,16 @@ extension String {
         return self[i ..< i + 1]
     }
 
+    /// Take the substring from a certain index
+    /// - Parameter fromIndex: the starting index
+    /// - Returns: the substring from the specific index
     func substring(fromIndex: Int) -> String {
         return self[min(fromIndex, length) ..< length]
     }
 
+    /// Take the substring to a certain index
+    /// - Parameter toIndex: the ending index
+    /// - Returns: the substring to the specific index
     func substring(toIndex: Int) -> String {
         return self[0 ..< max(0, toIndex)]
     }
@@ -143,8 +149,9 @@ extension String {
 extension Data {
     init?(fromHexEncodedString string: String) {
 
-        // Convert 0 ... 9, a ... f, A ...F to their decimal value,
-        // return nil for all other input characters
+        /// Convert 0 ... 9, a ... f, A ...F to their decimal value,
+        /// - Parameter u: The integer to be converted
+        /// - Returns: the conversion for the character, nil for all other input characters
         func decodeNibble(u: UInt16) -> UInt8? {
             switch(u) {
             case 0x30 ... 0x39:
